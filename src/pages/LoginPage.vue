@@ -2,6 +2,8 @@
 import { ref, reactive, computed } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
+import InputField from '@/components/InputField.vue'
+
 
 interface LoginPageState {
   email: string
@@ -35,31 +37,26 @@ const login = async (): Promise<void> => {
 
 }
 
-const emailErrorMessage = computed(() => {
-  
+const emailErrorMessage = computed<string|null>(() => {
   if (v$.value.email.$errors.length !== 0)
-    return v$.value.email.$errors[0].$message
+    return v$.value.email.$errors[0].$message.toString()
 
-  return ''
+  return null
 })
 
-const passwordErrorMessage = computed(() => {
+const passwordErrorMessage = computed<string|null>(() => {
   if (v$.value.password.$errors.length !== 0)
-    return v$.value.password.$errors[0].$message
+    return v$.value.password.$errors[0].$message.toString()
 
-  return ''
+  return null
 })
 
 </script>
 
 <template>
   <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
-    <div class="bg-slate-50 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-center gap-x-4">
-      <div class="flex-1 h-full">
-        <img :src="'/src/assets/svg/undraw_beach_day_cser.svg'" class="w-full h-full">
-      </div>
-
-      <div class="flex-2 flex flex-col gap-4 justify-center">
+    <div class="bg-slate-100 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-end login-page-bg-image">
+      <div class="w-1/2 flex flex-col gap-4 justify-center">
         <div class="font-bold text-2xl">
           Welcome!
         </div>
@@ -70,39 +67,19 @@ const passwordErrorMessage = computed(() => {
         </div>
 
         <div class="flex flex-col gap-4">
-          <div>
-            <div class="text-sm">
-              Email
-            </div>
-            
-            <input 
-              v-model="state.email"
-              type="email"
-              class="
-                w-full p-2 mt-2 
-                border border-solid border-slate-200 focus:outline-none focus:border-sky-500 
-                rounded-md
-              "
-              :class="emailErrorMessage ? 'border-red-500' : ''"
-            />
+          <InputField 
+            v-model="state.email"
+            type="email"
+            label="Email"
+            :error="emailErrorMessage"
+          />
 
-            <span class="text-sm text-red-500">{{ emailErrorMessage }}</span>
-          </div>
-
-          <div>
-            <div class="text-sm">
-              Password
-            </div>
-            
-            <input 
-              v-model="state.password"
-              type="password"
-              class="w-full p-2 mt-2 border border-solid border-slate-200 focus:outline-none focus:border-sky-500 rounded-md " 
-              :class="passwordErrorMessage ? 'border-red-500' : ''"
-            />
-
-            <span class="text-sm text-red-500">{{ passwordErrorMessage }}</span>
-          </div>
+          <InputField
+            v-model="state.password"
+            type="password"
+            label="Password"
+            :error="passwordErrorMessage"
+          />
 
           <a class="block w-full text-right underline cursor-pointer hover:text-orange-400">
             Forgot Password?
@@ -120,3 +97,12 @@ const passwordErrorMessage = computed(() => {
   </div>
 </template>
 
+<style>
+.login-page-bg-image {
+  background-image: url('/src/assets/svg/undraw_beach_day_cser.svg');
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  background-position: left;
+  background-size: 45% 100%;
+}
+</style>

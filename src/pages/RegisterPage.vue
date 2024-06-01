@@ -3,6 +3,7 @@ import { reactive, computed } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers, minLength, sameAs } from '@vuelidate/validators'
 import { hasUpperCase, hasNumber, hasSpecialCharacter } from '@/custom-validators'
+import InputField from '@/components/InputField.vue'
 
 interface RegisterPageState {
   email: string,
@@ -71,74 +72,37 @@ const confirmPasswordErrorMessage = computed<string|null>(() => {
 
 <template>
   <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
-    <div class="bg-slate-50 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-center gap-x-4">
-      <div class="flex-1 h-full">
-        <img :src="'/src/assets/svg/undraw_blooming_re_2kc4.svg'" class="w-full h-full">
-      </div>
-
-      <div class="flex-1 flex flex-col gap-4 justify-center">
+    <div class="bg-slate-100 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4 register-page-bg-image">       
+      <div class="w-1/2 flex flex-col gap-4 justify-center">
         <div class="font-bold text-2xl">
           Create an account
         </div>
 
+        <div>
+          Sign up to get started!
+        </div>
+
         <div class="flex flex-col gap-4">
-          <div>
-            <div class="text-sm">
-              Email
-            </div>
-            
-            <input 
-              v-model="state.email"
-              type="email"
-              class="
-                w-full p-2 mt-2 
-                border border-solid 
-                focus:outline-none focus:border-sky-500 focus:shadow-md
-                rounded-md
-              "
-              :class="emailErrorMessage ? 'border-red-500' : 'border-slate-300'"
-            />
+          <InputField 
+            v-model="state.email"
+            label="Email"
+            type="email"
+            :error="emailErrorMessage"
+          />
 
-            <span class="text-sm text-red-500">{{ emailErrorMessage }}</span>
-          </div>
+          <InputField 
+            v-model="state.password"
+            label="Password"
+            type="password"
+            :error="passwordErrorMessage"
+          />
 
-          <div>
-            <div class="text-sm">
-              Password
-            </div>
-            
-            <input 
-              v-model="state.password"
-              type="password"
-              class="
-                w-full p-2 mt-2 border border-solid 
-                focus:outline-none focus:border-sky-500 focus:shadow-md
-                rounded-md
-              " 
-              :class="passwordErrorMessage ? 'border-red-500' : 'border-slate-300'"
-            />
-
-            <span class="text-sm text-red-500">{{ passwordErrorMessage }}</span>
-          </div>
-
-          <div>
-            <div class="text-sm">
-              Confirm Password
-            </div>
-            
-            <input 
-              v-model="state.confirmPassword"
-              type="password"
-              class="
-                w-full p-2 mt-2 border border-solid
-                focus:outline-none focus:border-sky-500 focus:shadow-md
-                rounded-md
-              " 
-              :class="confirmPasswordErrorMessage !== null ? 'border-red-500' : 'border-slate-300'"
-            />
-
-            <span class="text-sm text-red-500">{{ confirmPasswordErrorMessage }}</span>
-          </div>
+          <InputField 
+            v-model="state.confirmPassword"
+            label="Confirm Password"
+            type="password"
+            :error="confirmPasswordErrorMessage"
+          />
 
           <button 
             class="
@@ -158,3 +122,13 @@ const confirmPasswordErrorMessage = computed<string|null>(() => {
     </div>
   </div>
 </template>
+
+<style>
+.register-page-bg-image {
+  background-image: url('/src/assets/svg/undraw_blooming_re_2kc4.svg');
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  background-position: left;
+  background-size: 45% 100%;
+}
+</style>
