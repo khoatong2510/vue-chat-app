@@ -31,3 +31,10 @@ coverage
 
 test-results/
 playwright-report/
+
+
+# amplify
+node_modules
+.amplify
+amplify_outputs*
+amplifyconfiguration*
