@@ -3,11 +3,7 @@ import {
   SignUpCommand,
   InitiateAuthCommand
 } from '@aws-sdk/client-cognito-identity-provider'
-
-type AuthInput = {
-  email: string
-  password: string
-}
+import type { AuthInput } from './types'
 
 const clientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
 

@@ -3,6 +3,12 @@ import { ref, reactive, computed } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
 import InputField from '@/components/InputField.vue'
+import Spinner from '@/components/Spinner.vue'
+import { useAuthStore } from '@/stores/auth';
+import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
+
+
+const authStore = useAuthStore()
 
 interface LoginPageState {
   email: string
@@ -13,6 +19,9 @@ const state: LoginPageState = reactive({
   email: '',
   password: ''
 })
+
+const backendError = ref('')
+const isLoading = ref(false)
 
 const rules = {
   email: {
@@ -30,14 +39,43 @@ const login = async (): Promise<void> => {
   const isValid = await v$.value.$validate()
 
   if (!isValid) return
-  // calling api here
+  
+  //loading here
+  isLoading.value = true
+
+  try {
+    await authStore.initiateAuth({
+      email: state.email,
+      password: state.password
+    })
+
+    isLoading.value = false
+
+  } catch (error) {
+    backendError.value = (error as CognitoIdentityProviderServiceException).name
+    isLoading.value = false
+  }
 }
 
-const emailErrorMessage = computed<string | null>(() => {
+const emailFrontEndErrorMessage = computed<string | null>(() => {
   if (v$.value.email.$errors.length !== 0) return v$.value.email.$errors[0].$message.toString()
 
   return null
 })
+
+const backendErrorMessage = computed<string | null>(() => {
+  if (backendError.value === '')
+    return null
+
+  if (backendError.value === 'UserNotConfirmedException') 
+    return 'Your account has not confirmed yet'
+
+  if (backendError.value === 'UserNotFoundException')
+    return 'Account not exist'
+
+  return 'Something wrong, we cannot log you in'
+})
+
 
 const passwordErrorMessage = computed<string | null>(() => {
   if (v$.value.password.$errors.length !== 0)
@@ -63,7 +101,12 @@ const passwordErrorMessage = computed<string | null>(() => {
         </div>
 
         <div class="flex flex-col gap-4">
-          <InputField v-model="state.email" type="email" label="Email" :error="emailErrorMessage" />
+          <InputField 
+            v-model="state.email"
+            type="email" 
+            label="Email" 
+            :error="emailFrontEndErrorMessage || backendErrorMessage" 
+          />
 
           <InputField
             v-model="state.password"
@@ -80,7 +123,12 @@ const passwordErrorMessage = computed<string | null>(() => {
             class="w-full rounded-2xl bg-slate-600 text-white py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in"
             @click="login"
           >
-            Login
+            <Spinner 
+              v-if="isLoading"
+              class="h-5 w-5" 
+            />
+            
+            <span v-else> Login </span>
           </button>
         </div>
       </div>

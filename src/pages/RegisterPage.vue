@@ -6,9 +6,10 @@ import { required, email, helpers, minLength, sameAs } from '@vuelidate/validato
 import { hasUpperCase, hasNumber, hasSpecialCharacter } from '@/custom-validators'
 import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
-import authService from '@/services/auth'
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '@/stores/auth'
+
 
 interface RegisterPageState {
   email: string
@@ -16,6 +17,7 @@ interface RegisterPageState {
   confirmPassword: string
 }
 
+const authStore = useAuthStore()
 const router = useRouter()
 
 const state: RegisterPageState = reactive({
@@ -55,36 +57,7 @@ const v$ = useVuelidate(rules, state)
 const isLoading = ref(false)
 const isSucceeded = ref(false)
 
-const register = async () => {
-  isLoading.value = true
 
-  const isValid = await v$.value.$validate()
-
-  if (!isValid) return
-
-  try {
-    await authService.signUp({
-      email: state.email,
-      password: state.password
-    })
-
-    isLoading.value = false
-
-    // success
-    isSucceeded.value = true
-  } catch (error) {
-    emailBackendError.value = (error as CognitoIdentityProviderServiceException).name
-    isLoading.value = false
-  }
-
-  // go back to login page
-
-  // handling error
-}
-
-const backToLogin = () => {
-  router.push('/login')
-}
 
 const emailFrontEndErrorMessage = computed<string | null>(() => {
   if (v$.value.email.$errors.length !== 0) return v$.value.email.$errors[0].$message.toString()
@@ -114,6 +87,37 @@ const confirmPasswordErrorMessage = computed<string | null>(() => {
 
   return null
 })
+
+const register = async () => {
+  isLoading.value = true
+
+  const isValid = await v$.value.$validate()
+
+  if (!isValid) return
+
+  try {
+    await authStore.signUp({ 
+      email: state.email, 
+      password: state.password 
+    })
+
+    isLoading.value = false
+
+    // success
+    isSucceeded.value = true
+  } catch (error) {
+    emailBackendError.value = (error as CognitoIdentityProviderServiceException).name
+    isLoading.value = false
+  }
+
+  // go back to login page
+
+  // handling error
+}
+
+const backToLogin = () => {
+  router.push('/login')
+}
 </script>
 
 <template>
