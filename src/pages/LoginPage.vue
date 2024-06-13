@@ -6,9 +6,11 @@ import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
 import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
+import { useRouter } from 'vue-router'
 
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 interface LoginPageState {
   email: string
@@ -50,6 +52,8 @@ const login = async (): Promise<void> => {
     })
 
     isLoading.value = false
+
+    router.push({ name: 'home' })
 
   } catch (error) {
     backendError.value = (error as CognitoIdentityProviderServiceException).name
@@ -120,7 +124,8 @@ const passwordErrorMessage = computed<string | null>(() => {
           </a>
 
           <button
-            class="w-full rounded-2xl bg-slate-600 text-white py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in"
+            class="
+              w-full rounded-2xl bg-slate-600 text-white py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
             @click="login"
           >
             <Spinner 

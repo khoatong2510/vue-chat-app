@@ -57,8 +57,6 @@ const v$ = useVuelidate(rules, state)
 const isLoading = ref(false)
 const isSucceeded = ref(false)
 
-
-
 const emailFrontEndErrorMessage = computed<string | null>(() => {
   if (v$.value.email.$errors.length !== 0) return v$.value.email.$errors[0].$message.toString()
 
@@ -125,7 +123,10 @@ const backToLogin = () => {
     <div
       class="bg-slate-100 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4 register-page-bg-image"
     >
-      <div v-if="isSucceeded" class="w-1/2 flex flex-col gap-4 justify-center">
+      <div 
+        v-if="!isSucceeded" 
+        class="w-1/2 flex flex-col gap-4 justify-center"
+      >
         <div class="font-bold text-2xl">Create an account</div>
 
         <div>Sign up to get started!</div>

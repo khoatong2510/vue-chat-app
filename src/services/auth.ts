@@ -1,7 +1,8 @@
 import {
   CognitoIdentityProvider,
   SignUpCommand,
-  InitiateAuthCommand
+  InitiateAuthCommand,
+  GlobalSignOutCommand
 } from '@aws-sdk/client-cognito-identity-provider'
 import type { AuthInput } from './types'
 
@@ -41,7 +42,17 @@ const initiateAuth = async ({ email, password }: AuthInput) => {
   return await client.send(command)
 }
 
+// signout
+const signOut = async (accessToken: string) => {
+  const command = new GlobalSignOutCommand({
+    AccessToken: accessToken
+  })
+
+  return await client.send(command)
+}
+
 export default {
   initiateAuth,
-  signUp
+  signUp,
+  signOut
 }
