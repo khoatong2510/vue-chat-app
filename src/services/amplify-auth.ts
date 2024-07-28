@@ -7,20 +7,21 @@ import {
   signOut,
   type SignInInput,
   type SignUpInput,
-  type ConfirmSignUpInput
+  type ConfirmSignUpInput,
+  type AuthUser,
 } from "aws-amplify/auth"
 
-const currentAuthUser = async () => {
+const currentAuthUser = async (): Promise<AuthUser> => {
   const currentUser = await getCurrentUser()
   return currentUser
 }
 
-const currentSession = async () => {
+const currentSession = async (): Promise<boolean> => {
   const res = await fetchAuthSession()
-  return res.tokens
+  return res.tokens !== undefined
 }
 
-const handleSignUp = async ({ username, password }: SignUpInput) => {
+const handleSignUp = async ({ username, password }: SignUpInput): Promise<string | undefined> => {
   try {
     const { isSignUpComplete, userId, nextStep } = await signUp({
       username,
@@ -30,6 +31,8 @@ const handleSignUp = async ({ username, password }: SignUpInput) => {
     console.log('isSignInComplete', isSignUpComplete)
     console.log('userId', userId)
     console.log('nextStep', nextStep)
+
+    return userId      
   } catch (error) {
     console.error('error signing up', error)
   }
@@ -51,10 +54,23 @@ const handleSignUpConfirmation = async ({ username, confirmationCode }: ConfirmS
 
 const handleSignIn = async ({ username, password }: SignInInput) => {
   try {
-    const { isSignedIn, nextStep } = await signIn({ username, password })
+    await signOut()
 
-    console.log('handle sign in', isSignedIn)
-    console.log('handle sign in', nextStep)
+    const { isSignedIn, nextStep } = await signIn({ 
+      username, 
+      password,
+      options: {
+        authFlowType: 'USER_PASSWORD_AUTH'
+      } 
+    })
+
+    if (!isSignedIn) {
+      // TODO handle other login scenarios
+      console.log(nextStep)
+    }
+      
+    return isSignedIn
+
   } catch (error) {
     console.log('error signing in', error)
   }
@@ -73,5 +89,6 @@ export default {
   currentSession,
   handleSignUp,
   handleSignUpConfirmation,
-  handleSignIn
+  handleSignIn,
+  handleSignOut
 }

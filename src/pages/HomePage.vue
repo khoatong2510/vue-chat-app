@@ -70,7 +70,7 @@ const onCreateUser = async () => {
       <div>
         <button
           class="bg-gray-700 text-white px-2 py-2 rounded-lg" 
-          @click="onListUsers"
+          @click="onCreateUser"
         >
           Create User
         </button>

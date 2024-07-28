@@ -8,7 +8,6 @@ import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
 import { useRouter } from 'vue-router'
 
-
 const authStore = useAuthStore()
 const router = useRouter()
 
@@ -46,7 +45,7 @@ const login = async (): Promise<void> => {
   isLoading.value = true
 
   try {
-    await authStore.initiateAuth({
+    await authStore.signIn({
       email: state.email,
       password: state.password
     })

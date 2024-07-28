@@ -1,17 +1,15 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './index.css'
-
 import App from './App.vue'
 import router from './router'
-
 import { Amplify } from 'aws-amplify'
 
 Amplify.configure({
   Auth: {
     Cognito: {
       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
-      userPoolClientId: import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
+      userPoolClientId: import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID,
     }
   },
   API: {
