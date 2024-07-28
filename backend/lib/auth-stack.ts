@@ -5,6 +5,8 @@ import * as cognito from 'aws-cdk-lib/aws-cognito'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class AuthStack extends cdk.Stack {
+  public readonly userPool: cognito.UserPool
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -64,5 +66,7 @@ export class AuthStack extends cdk.Stack {
         domainPrefix: "my-chatapp"
       }
     })
+
+    this.userPool = userPool
   }
 }

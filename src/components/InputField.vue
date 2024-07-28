@@ -3,7 +3,7 @@ import { defineModel } from 'vue'
 
 interface InputFieldProps {
   label?: string
-  error: string | null
+  error?: string | null
   type: 'text' | 'email' | 'password'
 }
 
@@ -13,7 +13,11 @@ const model = defineModel({ required: true })
 
 <template>
   <div>
-    <span v-if="props.label" class="text-sm" :class="props.error ? 'text-red-500' : ''">
+    <span 
+      v-if="props.label"
+      class="text-sm"
+      :class="props.error ? 'text-red-500' : ''"
+    >
       {{ props.label }}
     </span>
 
@@ -24,7 +28,10 @@ const model = defineModel({ required: true })
       :class="props.error ? 'border-red-500' : 'border-slate-300'"
     />
 
-    <span v-if="props.error" class="text-sm text-red-500">
+    <span 
+      v-if="props.error" 
+      class="text-sm text-red-500"
+    >
       {{ props.error }}
     </span>
   </div>

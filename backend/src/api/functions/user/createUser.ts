@@ -1,24 +1,18 @@
-import { Context, Request, util } from '@aws-appsync/utils'
+import { Context, util } from '@aws-appsync/utils'
+import * as dynamodb from '@aws-appsync/utils/dynamodb'
+import { CreateUserArgs } from './types'
 
-type CreateUserArgs = {
-  input: {
-    name: string,
-    avatarUrl: string
-  }
-}
 
 const request = (ctx: Context<CreateUserArgs>) => {
-  return { 
-    operation: 'PutItem',
-    key: util.dynamodb.toMapValues({
-      id: util.autoId()
-    }),
-    attributeValues: util.dynamodb.toMapValues(ctx.args.input)
-  }
+  const id = util.autoId()
+  const key = { id }
+  const item = { id, ...ctx.args.input }
+  
+  return dynamodb.put({ key, item })
 }
 
 const response = (ctx: Context) => {
-  return ctx.result;
+  return ctx.result
 }
 
 export {

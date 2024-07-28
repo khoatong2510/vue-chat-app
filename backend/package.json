@@ -5,7 +5,7 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=out src/**/*.ts",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
@@ -20,7 +20,7 @@
     "@types/jest": "^29.2.5",
     "@types/node": "18.11.18",
     "aws-cdk": "2.61.1",
-    "esbuild": "^0.21.5",
+    "esbuild": "0.21.5",
     "jest": "^29.3.1",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",

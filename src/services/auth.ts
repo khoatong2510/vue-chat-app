@@ -9,7 +9,7 @@ import type { AuthInput } from './types'
 const clientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
 
 const client = new CognitoIdentityProvider({
-  region: import.meta.env.VITE_REGION
+  region: import.meta.env.VITE_AWS_REGION
 })
 
 const signUp = async ({ email, password }: AuthInput) => {
@@ -50,6 +50,7 @@ const signOut = async (accessToken: string) => {
 
   return await client.send(command)
 }
+
 
 export default {
   initiateAuth,
