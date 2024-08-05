@@ -10,12 +10,12 @@ const FUNCTIONS_DIR = './out/api/functions/'
 const RESOLVERS_DIR = './out/api/resolvers/'
 const SCHEMA_DIR = './src/api/'
 
-interface ApiStackProps extends cdk.StackProps {
+interface GraphqlApiStackProps extends cdk.StackProps {
   userPool: cognito.UserPool
 }
 
-export class ApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: ApiStackProps) {
+export class GraphqlApiStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: GraphqlApiStackProps) {
     super(scope, id, props)
 
     const api = new appsync.GraphqlApi(this, 'Api', {

@@ -5,12 +5,14 @@ import { toBase64 } from '@/utils'
 import UserService from '@/services/user'
 import InputField from '@/components/InputField.vue'
 import { ref } from 'vue'
+import { MAX_FILE_SIZE_MB } from '@/utils/constants'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
 const userName = ref<string>('')
 const avatarUrl = ref<string>('')
+const avatarUploadError = ref<string|null>(null)
 
 const signOut = async () => {
   try {
@@ -24,8 +26,20 @@ const signOut = async () => {
 
 const onChange = async (e: any) => {
   const file = e.target.files[0]
-  const base64string = await toBase64(file)
-  console.log(base64string)
+  console.log(file)
+
+  if (file.size > MAX_FILE_SIZE_MB) {
+    avatarUploadError.value = 'File size is larger than 5MB'
+    return
+  }
+
+  if (!file.type.includes('image')) {
+    avatarUploadError.value = 'File is not image' 
+    return
+  }
+
+  avatarUrl.value = await toBase64(file)
+  avatarUploadError.value = null
 }
 
 const onListUsers = async () => {
@@ -33,6 +47,9 @@ const onListUsers = async () => {
 }
 
 const onCreateUser = async () => {
+  console.log("userName", userName)
+  console.log("avatarUrl", avatarUrl)
+
   await UserService.createUser({
     name: userName.value,
     avatarUrl: avatarUrl.value
@@ -42,7 +59,9 @@ const onCreateUser = async () => {
 
 <template>
   <div class="p-8 flex flex-col gap-8">
-    <div class="text-2xl font-semibold">This is a home page</div>
+    <div class="text-2xl font-semibold">
+      This is a home page
+    </div>
     
     <div>
       <button
@@ -65,7 +84,19 @@ const onCreateUser = async () => {
         type="text"
       />
       
-      <input type="file" @change="onChange" />
+      <input type="file" size="" @change="onChange" />
+
+      <span class="text-sm text-red-500">
+        {{ avatarUploadError }}
+      </span>
+
+      <div>
+        <img
+          v-if="avatarUrl && !avatarUploadError"
+          :src="avatarUrl"
+          class="w-52"
+        >
+      </div>
 
       <div>
         <button

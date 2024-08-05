@@ -13,7 +13,8 @@
     "login": "aws sso login --profile admin",
     "deploy:all": "cdk deploy --profile admin --all",
     "deploy:auth": "cdk deploy AuthStack --profile admin",
-    "deploy:api": "cdk deploy ApiStack --profile admin"
+    "deploy:api": "cdk deploy ApiStack --profile admin",
+    "deploy:image-api": "cdk deploy ImageUploadApiStack --profile admin"
   },
   "devDependencies": {
     "@aws-appsync/utils": "^1.8.0",

@@ -5,7 +5,8 @@ import type { CreateUserInput } from './types'
 
 const listUsers = async () => {
   const res = await client.graphql({
-    query: queries.listUsers
+    query: queries.listUsers,
+    authMode: 'userPool',
   })
 
   console.log(res)

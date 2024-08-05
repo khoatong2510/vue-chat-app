@@ -2,7 +2,8 @@
 import 'source-map-support/register'
 import * as cdk from 'aws-cdk-lib'
 import { AuthStack } from '../lib/auth-stack'
-import { ApiStack } from '../lib/api-stack'
+import { GraphqlApiStack } from '../lib/graphql-api-stack'
+import { ImageUploadApiStack } from '../lib/image-upload-api-stack'
 
 const app = new cdk.App()
 const env = { 
@@ -14,7 +15,12 @@ const authStack = new AuthStack(app, 'AuthStack', {
   env
 })
 
-new ApiStack(app, 'ApiStack', { 
+new GraphqlApiStack(app, 'ApiStack', { 
+  userPool: authStack.userPool,
+  env
+})
+
+new ImageUploadApiStack(app, 'ImageUploadApiStack', {
   userPool: authStack.userPool,
   env
 })
