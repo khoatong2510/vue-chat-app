@@ -27,6 +27,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  await authStore.getCurrentUser()
   await authStore.getCurrentSession()
 
   if (authStore.isAuth || to.name === 'login' || to.name === 'register') {

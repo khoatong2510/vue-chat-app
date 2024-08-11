@@ -1,8 +1,8 @@
-import { 
-  getCurrentUser, 
-  fetchAuthSession, 
-  signUp, 
-  confirmSignUp, 
+import {
+  getCurrentUser,
+  fetchAuthSession,
+  signUp,
+  confirmSignUp,
   signIn,
   signOut,
   type SignInInput,
@@ -21,6 +21,11 @@ const currentSession = async (): Promise<boolean> => {
   return res.tokens !== undefined
 }
 
+const currentIdToken = async (): Promise<string | undefined> => {
+  const res = await fetchAuthSession()
+  return res.tokens?.idToken?.toString()
+}
+
 const handleSignUp = async ({ username, password }: SignUpInput): Promise<string | undefined> => {
   try {
     const { isSignUpComplete, userId, nextStep } = await signUp({
@@ -32,7 +37,7 @@ const handleSignUp = async ({ username, password }: SignUpInput): Promise<string
     console.log('userId', userId)
     console.log('nextStep', nextStep)
 
-    return userId      
+    return userId
   } catch (error) {
     console.error('error signing up', error)
   }
@@ -44,7 +49,7 @@ const handleSignUpConfirmation = async ({ username, confirmationCode }: ConfirmS
       username,
       confirmationCode
     })
-  
+
     console.log('handle confirm isSignUpComplete', isSignUpComplete)
     console.log('handle confirm nextStep', nextStep)
   } catch (error) {
@@ -56,19 +61,19 @@ const handleSignIn = async ({ username, password }: SignInInput) => {
   try {
     await signOut()
 
-    const { isSignedIn, nextStep } = await signIn({ 
-      username, 
+    const { isSignedIn, nextStep } = await signIn({
+      username,
       password,
       options: {
         authFlowType: 'USER_PASSWORD_AUTH'
-      } 
+      }
     })
 
     if (!isSignedIn) {
       // TODO handle other login scenarios
       console.log(nextStep)
     }
-      
+
     return isSignedIn
 
   } catch (error) {
@@ -87,6 +92,7 @@ const handleSignOut = async () => {
 export default {
   currentAuthUser,
   currentSession,
+  currentIdToken,
   handleSignUp,
   handleSignUpConfirmation,
   handleSignIn,

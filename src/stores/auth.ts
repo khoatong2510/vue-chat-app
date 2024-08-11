@@ -28,15 +28,15 @@ export const useAuthStore = defineStore('auth', {
       this.hasValidSession = await authService.currentSession()
     },
     async signUp({ email, password }: AuthInput) {
-      await authService.handleSignUp({ 
-        username: email, 
-        password 
+      await authService.handleSignUp({
+        username: email,
+        password
       })
     },
     async signIn({ email, password }: AuthInput) {
-      const isSignedIn = await authService.handleSignIn({ 
-        username: email, 
-        password 
+      const isSignedIn = await authService.handleSignIn({
+        username: email,
+        password
       })
 
       if (!isSignedIn)

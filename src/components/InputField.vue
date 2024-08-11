@@ -5,6 +5,7 @@ interface InputFieldProps {
   label?: string
   error?: string | null
   type: 'text' | 'email' | 'password'
+  placeholder?: string
 }
 
 const props = defineProps<InputFieldProps>()
@@ -15,7 +16,7 @@ const model = defineModel({ required: true })
   <div>
     <span 
       v-if="props.label"
-      class="text-sm"
+      class="text-xs text-gray-600"
       :class="props.error ? 'text-red-500' : ''"
     >
       {{ props.label }}
@@ -24,7 +25,8 @@ const model = defineModel({ required: true })
     <input
       v-model="model"
       :type="props.type"
-      class="w-full p-2 mt-2 border border-solid focus:outline-none focus:border-sky-500 focus:shadow-md rounded-md"
+      :placeholder="props.placeholder"
+      class="w-full p-2 mt-1 border border-solid focus:outline-none focus:border-sky-500 focus:shadow-md rounded-md"
       :class="props.error ? 'border-red-500' : 'border-slate-300'"
     />
 
