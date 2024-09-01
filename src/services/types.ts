@@ -4,6 +4,7 @@ export type AuthInput = {
 }
 
 export type CreateUserInput = {
+  id: string
   name: string
   avatarUrl: string
 }

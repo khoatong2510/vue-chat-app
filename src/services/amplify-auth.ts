@@ -17,7 +17,7 @@ const currentAuthUser = async (): Promise<AuthUser> => {
 }
 
 const currentSession = async (): Promise<boolean> => {
-  const res = await fetchAuthSession()
+  const res = await fetchAuthSession({ forceRefresh: true })
   return res.tokens !== undefined
 }
 

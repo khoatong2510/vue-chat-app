@@ -31,7 +31,6 @@ const onListUsers = async () => {
 const onCreateUser = async () => {
   // console.log("userName", userName)
   // console.log("avatarUrl", avatarUrl)
-  
 
   if (!uploadFile.value)
     return
@@ -54,11 +53,11 @@ const onCreateUser = async () => {
 
   console.log(res)
 
-
-  // await UserService.createUser({
-  //   name: userName.value,
-  //   avatarUrl: avatarUrl.value
-  // })
+  await UserService.createUser({
+    id: userId,
+    name: userName.value,
+    avatarUrl: res.url
+  })
 }
 
 const onChange = (file: File) => {

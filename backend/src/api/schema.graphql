@@ -3,7 +3,8 @@ schema {
   mutation: Mutation
 }
 
-type User {
+
+type User @aws_cognito_user_pools {
   id: ID!
   name: String
   avatarUrl: String
@@ -15,12 +16,13 @@ type Query {
 }
 
 input CreateUserInput {
-  name: String,
-  avatarUrl: String
+  id: ID!
+  name: String!,
+  avatarUrl: String!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User
+  createUser(input: CreateUserInput!): User @aws_cognito_user_pools
   updateUser(id: ID!, values: CreateUserInput): User
   deleteUser(id: ID!): ID
 }

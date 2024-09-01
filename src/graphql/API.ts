@@ -3,8 +3,9 @@
 //  This file was automatically generated and should not be edited.
 
 export type CreateUserInput = {
-  name?: string | null,
-  avatarUrl?: string | null,
+  id: string,
+  name: string,
+  avatarUrl: string,
 };
 
 export type User = {
@@ -63,6 +64,5 @@ export type ListUsersQuery = {
     __typename: "User",
     id: string,
     name?: string | null,
-    avatarUrl?: string | null,
   } | null > | null,
 };

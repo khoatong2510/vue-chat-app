@@ -1,3 +1,5 @@
 import { generateClient } from "aws-amplify/api"
 
-export const client = generateClient()
+export const client = generateClient({
+  authMode: "userPool"
+})

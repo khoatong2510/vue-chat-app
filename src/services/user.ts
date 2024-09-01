@@ -14,6 +14,7 @@ const listUsers = async () => {
 
 const createUser = async (input: CreateUserInput) => {
   const res = await client.graphql({
+    authMode: "userPool",
     query: mutations.createUser,
     variables: {
       input
