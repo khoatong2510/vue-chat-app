@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import authService from '@/services/amplify-auth'
-import type { AuthInput } from '@/services/types'
 import type { AuthStoreUser } from './types'
+import type { Service } from '@/services/types'
 
 interface AuthStoreState {
   user: AuthStoreUser | null
@@ -27,13 +27,13 @@ export const useAuthStore = defineStore('auth', {
     async getCurrentSession() {
       this.hasValidSession = await authService.currentSession()
     },
-    async signUp({ email, password }: AuthInput) {
+    async signUp({ email, password }: Service.AuthInput) {
       await authService.handleSignUp({
         username: email,
         password
       })
     },
-    async signIn({ email, password }: AuthInput) {
+    async signIn({ email, password }: Service.AuthInput) {
       const isSignedIn = await authService.handleSignIn({
         username: email,
         password

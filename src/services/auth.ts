@@ -4,7 +4,7 @@ import {
   InitiateAuthCommand,
   GlobalSignOutCommand
 } from '@aws-sdk/client-cognito-identity-provider'
-import type { AuthInput } from './types'
+import type { Service } from './types'
 
 const clientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
 
@@ -12,7 +12,7 @@ const client = new CognitoIdentityProvider({
   region: import.meta.env.VITE_AWS_REGION
 })
 
-const signUp = async ({ email, password }: AuthInput) => {
+const signUp = async ({ email, password }: Service.AuthInput) => {
   const command = new SignUpCommand({
     ClientId: clientId,
     Username: email,
@@ -29,7 +29,7 @@ const signUp = async ({ email, password }: AuthInput) => {
 }
 
 // login
-const initiateAuth = async ({ email, password }: AuthInput) => {
+const initiateAuth = async ({ email, password }: Service.AuthInput) => {
   const command = new InitiateAuthCommand({
     ClientId: clientId,
     AuthFlow: 'USER_PASSWORD_AUTH',

@@ -24,7 +24,8 @@
     "cropperjs": "^1.6.2",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue3-emoji-picker": "^1.1.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.0",

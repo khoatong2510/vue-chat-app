@@ -3,6 +3,8 @@ import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import HomePage from '@/pages/HomePage.vue'
 import { useAuthStore } from '@/stores/auth'
+import CreateProfilePage from '@/pages/CreateProfilePage.vue'
+import FriendSuggestionPage from '@/pages/FriendSuggestionPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,13 +23,22 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomePage
+    },
+    {
+      path: '/create-profile',
+      name: 'create-profile',
+      component: CreateProfilePage
+    },
+    {
+      path: '/friend-suggestion',
+      name: 'friend-suggestion',
+      component: FriendSuggestionPage
     }
   ]
 })
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  await authStore.getCurrentUser()
   await authStore.getCurrentSession()
 
   if (authStore.isAuth || to.name === 'login' || to.name === 'register') {

@@ -7,6 +7,7 @@ import Spinner from '@/components/Spinner.vue'
 import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
 import { useRouter } from 'vue-router'
+import UserService from '@/services/user'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -45,16 +46,32 @@ const login = async (): Promise<void> => {
   isLoading.value = true
 
   try {
+    await authStore.signOut()
+
     await authStore.signIn({
       email: state.email,
       password: state.password
     })
 
+    if (!authStore.user)
+      throw new Error("User Data not found")
+
+    const userId = authStore.user.userId
+    // loading user profile
+    console.log("userId", userId)
+    
+    const userProfile = await UserService.getUser(userId)
+    
     isLoading.value = false
 
-    router.push({ name: 'home' })
-
+    if (userProfile) {
+      router.push({ name: 'home' })
+    } else {
+      router.push({ name: 'create-profile' })
+    }
+    
   } catch (error) {
+    console.log(error)
     backendError.value = (error as CognitoIdentityProviderServiceException).name
     isLoading.value = false
   }
@@ -97,9 +114,12 @@ const passwordErrorMessage = computed<string | null>(() => {
         <div class="font-bold text-2xl">Welcome!</div>
 
         <div>
-          <a class="underline font-semibold cursor-pointer hover:text-orange-400" href="/register"
-            >Create a new account</a
+          <a 
+            class="underline font-semibold cursor-pointer hover:text-orange-400" 
+            href="/register"
           >
+            Create a new account
+          </a>
           or login to get started using Chat App
         </div>
 

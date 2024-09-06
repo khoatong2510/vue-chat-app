@@ -50,6 +50,10 @@ export type DeleteUserMutation = {
   deleteUser?: string | null,
 };
 
+export type GetUserQueryVariables = {
+  id?: string,
+};
+
 export type GetUserQuery = {
   getUser?:  {
     __typename: "User",
@@ -64,5 +68,6 @@ export type ListUsersQuery = {
     __typename: "User",
     id: string,
     name?: string | null,
+    avatarUrl?: string | null,
   } | null > | null,
 };

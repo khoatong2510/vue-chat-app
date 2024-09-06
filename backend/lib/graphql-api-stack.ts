@@ -8,7 +8,7 @@ import { ResolverType } from './constructs/types'
 
 const FUNCTIONS_DIR = './out/api/functions/'
 const RESOLVERS_DIR = './out/api/resolvers/'
-const SCHEMA_DIR = './src/api/'
+const SCHEMA_DIR = '../'
 
 interface GraphqlApiStackProps extends cdk.StackProps {
   userPool: cognito.UserPool
@@ -58,6 +58,15 @@ export class GraphqlApiStack extends cdk.Stack {
       resolverType: ResolverType.Query
     })
 
+    new ResolverConstruct(this, 'get-user-resolver', {
+      api,
+      dataSource: userDataSource,
+      fieldName: 'getUser',
+      resolverId: 'pipeline-resolver-get-user',
+      resolverFilePath: `${RESOLVERS_DIR}/user/getUser.js`,
+      resolverType: ResolverType.Query
+    })
+
     new ResolverConstruct(this, 'create-user-resolver', {
       api,
       dataSource: userDataSource,
@@ -92,6 +101,42 @@ export class GraphqlApiStack extends cdk.Stack {
       functionId: 'func-delete-user',
       functionName: 'delete_user_func',
       functionFilePath: `${FUNCTIONS_DIR}/user/deleteUser.js`
+    })
+
+    new ResolverConstruct(this, 'suggest-friend-resolver', {
+      api,
+      dataSource: userDataSource,
+      fieldName: 'suggestFriend',
+      resolverId: 'pipeline-resolver-suggest-friend',
+      resolverFilePath: `${RESOLVERS_DIR}/user/suggestFriend.js`,
+      resolverType: ResolverType.Query
+    })
+
+    new ResolverConstruct(this, 'request-friend-resolver', {
+      api,
+      dataSource: userDataSource,
+      fieldName: 'requestFriend',
+      resolverId: 'pipeline-resolver-request-friend',
+      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
+      resolverType: ResolverType.Mutation
+    })
+
+    new ResolverConstruct(this, 'accept-friend-request-resolver', {
+      api,
+      dataSource: userDataSource,
+      fieldName: 'acceptFriendRequest',
+      resolverId: 'pipeline-resolver-accept-friend-request',
+      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
+      resolverType: ResolverType.Mutation
+    })
+
+    new ResolverConstruct(this, 'decline-friend-request-resolver', {
+      api,
+      dataSource: userDataSource,
+      fieldName: 'declineFriendRequest',
+      resolverId: 'pipeline-resolver-decline-friend-request',
+      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
+      resolverType: ResolverType.Mutation
     })
   }
 }

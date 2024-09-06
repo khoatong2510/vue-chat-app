@@ -8,11 +8,13 @@ type User @aws_cognito_user_pools {
   id: ID!
   name: String
   avatarUrl: String
+  friends: [ID]
 }
 
 type Query {
-  getUser: User,
+  getUser(id: ID!): User @aws_cognito_user_pools,
   listUsers: [User]
+  suggestFriend: [User]
 }
 
 input CreateUserInput {
@@ -25,4 +27,5 @@ type Mutation {
   createUser(input: CreateUserInput!): User @aws_cognito_user_pools
   updateUser(id: ID!, values: CreateUserInput): User
   deleteUser(id: ID!): ID
+  requestFriend
 }

@@ -5,7 +5,7 @@ export default {
     extend: {},
     fontFamily: {
       sans: [
-        "Lato", 'sans-serif'
+        "Poppins", 'sans-serif'
       ],
       serif: [
         "Merriweather", 'serif'
