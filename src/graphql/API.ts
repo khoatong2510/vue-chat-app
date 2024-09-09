@@ -13,6 +13,14 @@ export type User = {
   id?: string,
   name?: string | null,
   avatarUrl?: string | null,
+  friends?: Array< string | null > | null,
+};
+
+export type Friend = {
+  __typename: "Friend",
+  id?: string,
+  name?: string | null,
+  avatarUrl?: string | null,
 };
 
 export type CreateUserMutationVariables = {
@@ -25,6 +33,7 @@ export type CreateUserMutation = {
     id: string,
     name?: string | null,
     avatarUrl?: string | null,
+    friends?: Array< string | null > | null,
   } | null,
 };
 
@@ -39,6 +48,7 @@ export type UpdateUserMutation = {
     id: string,
     name?: string | null,
     avatarUrl?: string | null,
+    friends?: Array< string | null > | null,
   } | null,
 };
 
@@ -60,12 +70,27 @@ export type GetUserQuery = {
     id: string,
     name?: string | null,
     avatarUrl?: string | null,
+    friends?: Array< string | null > | null,
   } | null,
 };
 
 export type ListUsersQuery = {
   listUsers?:  Array< {
     __typename: "User",
+    id: string,
+    name?: string | null,
+    avatarUrl?: string | null,
+    friends?: Array< string | null > | null,
+  } | null > | null,
+};
+
+export type SuggestFriendQueryVariables = {
+  id?: string,
+};
+
+export type SuggestFriendQuery = {
+  suggestFriend?:  Array< {
+    __typename: "Friend",
     id: string,
     name?: string | null,
     avatarUrl?: string | null,

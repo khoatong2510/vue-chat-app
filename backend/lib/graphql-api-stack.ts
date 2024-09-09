@@ -112,31 +112,31 @@ export class GraphqlApiStack extends cdk.Stack {
       resolverType: ResolverType.Query
     })
 
-    new ResolverConstruct(this, 'request-friend-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'requestFriend',
-      resolverId: 'pipeline-resolver-request-friend',
-      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
-      resolverType: ResolverType.Mutation
-    })
+    // new ResolverConstruct(this, 'request-friend-resolver', {
+    //   api,
+    //   dataSource: userDataSource,
+    //   fieldName: 'requestFriend',
+    //   resolverId: 'pipeline-resolver-request-friend',
+    //   resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
+    //   resolverType: ResolverType.Mutation
+    // })
 
-    new ResolverConstruct(this, 'accept-friend-request-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'acceptFriendRequest',
-      resolverId: 'pipeline-resolver-accept-friend-request',
-      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
-      resolverType: ResolverType.Mutation
-    })
+    // new ResolverConstruct(this, 'accept-friend-request-resolver', {
+    //   api,
+    //   dataSource: userDataSource,
+    //   fieldName: 'acceptFriendRequest',
+    //   resolverId: 'pipeline-resolver-accept-friend-request',
+    //   resolverFilePath: `${RESOLVERS_DIR}/user/acceptFriendRequest.js`,
+    //   resolverType: ResolverType.Mutation
+    // })
 
-    new ResolverConstruct(this, 'decline-friend-request-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'declineFriendRequest',
-      resolverId: 'pipeline-resolver-decline-friend-request',
-      resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
-      resolverType: ResolverType.Mutation
-    })
+    // new ResolverConstruct(this, 'decline-friend-request-resolver', {
+    //   api,
+    //   dataSource: userDataSource,
+    //   fieldName: 'declineFriendRequest',
+    //   resolverId: 'pipeline-resolver-decline-friend-request',
+    //   resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
+    //   resolverType: ResolverType.Mutation
+    // })
   }
 }

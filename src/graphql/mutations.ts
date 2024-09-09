@@ -8,6 +8,7 @@ export const createUser = /* GraphQL */ `
       id
       name
       avatarUrl
+      friends
     }
   }
 `;
@@ -17,6 +18,7 @@ export const updateUser = /* GraphQL */ `
       id
       name
       avatarUrl
+      friends
     }
   }
 `;

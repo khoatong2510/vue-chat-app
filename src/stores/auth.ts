@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import authService from '@/services/amplify-auth'
-import type { AuthStoreUser } from './types'
+import { type Store } from './types'
 import type { Service } from '@/services/types'
 
 interface AuthStoreState {
-  user: AuthStoreUser | null
+  user: Store.AuthStoreUser | null
   hasValidSession: boolean
 }
 

@@ -11,9 +11,8 @@ export default {
         "Merriweather", 'serif'
       ],
       mono: [
-        'Consolas',
-        '"Liberation Mono"',
-        '"Courier New"'
+        "Anonymous Pro",
+        "Courier New"
       ]
     }
   },

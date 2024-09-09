@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
-import HomePage from '@/pages/HomePage.vue'
+import HomePage from '@/pages/home-page/HomePage.vue'
 import { useAuthStore } from '@/stores/auth'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
 import FriendSuggestionPage from '@/pages/FriendSuggestionPage.vue'

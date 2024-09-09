@@ -46,9 +46,27 @@ const getUser = async (id: string) => {
   return res.data.getUser
 }
 
+const suggestFriend = async (id: string) => {
+  const res = await client.graphql({
+    authMode: "userPool",
+    query: queries.suggestFriend,
+    variables: {
+      id
+    }
+  }) as GraphQLResult<{ suggestFriend: Service.User[] }>
+
+  console.log(res)
+
+  if (res.errors)
+    throw res.errors
+
+  return res.data
+}
+
 
 export default {
   getUser,
   listUsers,
-  createUser
+  createUser,
+  suggestFriend
 }

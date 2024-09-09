@@ -11,10 +11,16 @@ type User @aws_cognito_user_pools {
   friends: [ID]
 }
 
+type Friend {
+  id: ID!,
+  name: String,
+  avatarUrl: String
+}
+
 type Query {
-  getUser(id: ID!): User @aws_cognito_user_pools,
+  getUser(id: ID!): User @aws_cognito_user_pools
   listUsers: [User]
-  suggestFriend: [User]
+  suggestFriend(id: ID!): [Friend] @aws_cognito_user_pools
 }
 
 input CreateUserInput {
@@ -27,5 +33,4 @@ type Mutation {
   createUser(input: CreateUserInput!): User @aws_cognito_user_pools
   updateUser(id: ID!, values: CreateUserInput): User
   deleteUser(id: ID!): ID
-  requestFriend
 }
