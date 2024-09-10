@@ -3,10 +3,12 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserProfileStore } from '@/stores/profile';
 import { computed, onMounted } from 'vue';
 
-const userProfileStore = useUserProfileStore()
 const authStore = useAuthStore()
+const userProfileStore = useUserProfileStore()
 
 onMounted(async (): Promise<void> => {
+  await authStore.getCurrentUser()
+
   if (!authStore.user)
     return
 

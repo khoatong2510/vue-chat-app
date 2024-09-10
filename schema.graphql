@@ -11,7 +11,7 @@ type User @aws_cognito_user_pools {
   friends: [ID]
 }
 
-type Friend {
+type Friend @aws_cognito_user_pools {
   id: ID!,
   name: String,
   avatarUrl: String

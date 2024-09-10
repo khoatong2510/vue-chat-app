@@ -30,8 +30,11 @@ export const useUserProfileStore = defineStore('userProfile', {
       await userService.createUser(input)
     },
     async suggestFriend(): Promise<void> {
+      console.log("calling suggest friend")
       if (!this.id)
         throw new Error("id not found")
+
+      console.log(this.id)
 
       const res = await userService.suggestFriend(this.id)
 
