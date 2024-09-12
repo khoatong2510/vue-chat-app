@@ -6,6 +6,8 @@ import * as cognito from 'aws-cdk-lib/aws-cognito'
 import { Construct } from 'constructs'
 import getRequestIntegration from './get-request-intergration'
 import putRequestIntegration from './put-request-integration'
+import * as logs from 'aws-cdk-lib/aws-logs'
+
 
 interface ImageUploadApiStackProps extends cdk.StackProps {
   userPool: cognito.UserPool
@@ -20,6 +22,7 @@ export class ImageUploadApiStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
 
+
     // create role
     const role = new iam.Role(this, 'api-gateway-s3-proxy-policy', {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
@@ -31,13 +34,32 @@ export class ImageUploadApiStack extends cdk.Stack {
       actions: [
         's3:GetObject',
         's3:PutObject',
-        's3:ListBucket'
+        's3:ListBucket',
+
       ],
       resources: [
         bucket.bucketArn,
-        bucket.arnForObjects("*")
+        bucket.arnForObjects("*"),
       ]
     }))
+
+    // const logRole = new iam.Role(this, 'cloudwatch-log-role', {
+    //   assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+    //   roleName: 'CloudwatchLog'
+    // })
+
+    // logRole.addToPolicy(new iam.PolicyStatement({
+    //   effect: iam.Effect.ALLOW,
+    //   actions: [
+    //     'logs:PutLogEvents',
+    //     'logs:PutLogEventsBatch',
+    //     'logs:CreateLogStream'
+    //   ],
+    //   resources: [
+    //     logGroup.logGroupArn
+
+    //   ]
+    // }))
 
     // create api resources to represent s3 resources
 
@@ -46,6 +68,7 @@ export class ImageUploadApiStack extends cdk.Stack {
     const api = new apigateway.RestApi(this, 'avatar-api', {
       restApiName: 'avatar-api',
       binaryMediaTypes: ["image/*"],
+      cloudWatchRole: true,
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
@@ -78,9 +101,12 @@ export class ImageUploadApiStack extends cdk.Stack {
           statusCode: '200',
           responseParameters: {
             "method.response.header.Content-Type": true,
-            "method.response.header.Date": true,
+            "method.response.header.Timestamp": true,
             "method.response.header.Content-Length": true,
-          }
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Methods": true
+          },
         },
         {
           statusCode: '400'
@@ -96,9 +122,8 @@ export class ImageUploadApiStack extends cdk.Stack {
       authorizer: auth,
       requestParameters: {
         "method.request.path.id": true,
-
+        "method.request.header.Content-Type": true
       },
-
       methodResponses: [
         {
           statusCode: '200',
@@ -123,10 +148,26 @@ export class ImageUploadApiStack extends cdk.Stack {
     })
 
     deployment.addToLogicalId(api.latestDeployment?.deploymentId)
+    const logGroup = new logs.LogGroup(this, 'DevLogs', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      retention: logs.RetentionDays.ONE_DAY
+    })
 
     new apigateway.Stage(this, 'dev', {
       deployment: deployment,
       stageName: "dev",
+      // accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
+      // accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields({
+      //   caller: false,
+      //   httpMethod: true,
+      //   ip: true,
+      //   protocol: true,
+      //   requestTime: true,
+      //   resourcePath: true,
+      //   responseLength: true,
+      //   status: true,
+      //   user: true,
+      // }),
     })
   }
 }

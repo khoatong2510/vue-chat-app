@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth';
-import { useUserProfileStore } from '@/stores/profile';
-import { computed, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth'
+import { useUserProfileStore } from '@/stores/profile'
+import { computed, onMounted, watch } from 'vue'
+
 
 const authStore = useAuthStore()
 const userProfileStore = useUserProfileStore()
@@ -28,7 +29,13 @@ const friends = computed(() => userProfileStore.suggestedFriends)
       </div>
 
       <div>
-        {{ friends?.length }}
+        <div v-for="friend in friends" :key="friend.id">
+          <div>
+            {{ friend.name }}
+            <!-- {{ friend.avatarUrl }} -->
+          </div>
+          <img :src="friend.avatarUrl">
+        </div>
       </div>
     </div>
   </div>

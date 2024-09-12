@@ -12,6 +12,7 @@ const putRequestIntegration = (props: cdk.StackProps, credentialsRole: iam.Role)
       credentialsRole,
       requestParameters: {
         "integration.request.path.object": "method.request.path.id",
+        "integration.request.header.Content-Type": "method.request.header.Content-Type"
       },
       integrationResponses: [
         {

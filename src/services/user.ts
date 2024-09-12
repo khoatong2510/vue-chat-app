@@ -55,8 +55,6 @@ const suggestFriend = async (id: string) => {
     }
   }) as GraphQLResult<{ suggestFriend: Service.User[] }>
 
-  console.log(res)
-
   if (res.errors)
     throw res.errors
 

@@ -2,7 +2,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import * as cdk from 'aws-cdk-lib'
 import * as iam from 'aws-cdk-lib/aws-iam'
 
-const getRequestIntegration = (props: cdk.StackProps, credentialsRole: iam.Role) => { 
+const getRequestIntegration = (props: cdk.StackProps, credentialsRole: iam.Role) => {
   const integration = new apigateway.AwsIntegration({
     service: 's3',
     region: props.env?.region || 'ap-southeast-2',
@@ -17,12 +17,14 @@ const getRequestIntegration = (props: cdk.StackProps, credentialsRole: iam.Role)
       integrationResponses: [
         {
           statusCode: '200',
-          contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
           responseParameters: {
             "method.response.header.Content-Type": "integration.response.header.Content-Type",
-            "method.response.header.Date": "integration.response.header.Date",
-            "method.response.header.Content-Length": "integration.response.header.Content-Length"
-          }
+            "method.response.header.Content-Length": "integration.response.header.Content-Length",
+            "method.response.header.Timestamp": "integration.response.header.Date",
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Date,Content-Length'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT'"
+          },
         },
         {
           statusCode: '400',
@@ -31,7 +33,6 @@ const getRequestIntegration = (props: cdk.StackProps, credentialsRole: iam.Role)
             "application/json": `{ "message": "Error while fetching file" }`
           }
         },
-      
         {
           statusCode: '500',
           selectionPattern: `5\\d{2}`,
