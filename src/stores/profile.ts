@@ -26,7 +26,20 @@ export const useUserProfileStore = defineStore('userProfile', {
 
       this.id = id
       this.name = name
-      this.avatarUrl = avatarUrl
+
+      const idToken = await authService.currentIdToken()
+
+      const res = await fetch(avatarUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          Accept: 'image/*',
+        }
+      })
+
+      const blob = await res.blob()
+      const url = await toBase64(blob)
+      this.avatarUrl = url
     },
     async createUserProfile(input: { id: string, name: string, avatarUrl: string }): Promise<void> {
       await userService.createUser(input)
@@ -47,17 +60,17 @@ export const useUserProfileStore = defineStore('userProfile', {
           }
         })
 
-        console.log(res)
-
         const blob = await res.blob()
-
-        console.log("blob", blob)
+        let url = await toBase64(blob)
 
         return {
           ...friend,
-          avatarUrl: URL.createObjectURL(blob)
+          avatarUrl: url
         }
       }))
+    },
+    async requestFriend(id: string): Promise<void> {
+      await userService.requestFriend(id)
     }
   }
 })

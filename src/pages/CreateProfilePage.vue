@@ -31,14 +31,12 @@ const onCreateUser = async () => {
 
     await authStore.getCurrentUser()
     const userId = authStore.user?.userId
-    console.log(userId)
 
     if (!userId)
       return
 
     // upload file to s3
     const idToken = await authService.currentIdToken()
-    console.log("type", uploadFile.value)
     const res = await fetch(`https://2v2dwfsmk4.execute-api.ap-southeast-2.amazonaws.com/dev/avatar/${userId}`, {
       method: 'PUT',
       headers: {
@@ -54,7 +52,7 @@ const onCreateUser = async () => {
       avatarUrl: res.url
     })
 
-    // router.push({ name: 'friend-suggestion' })
+    router.push({ name: 'friend-suggestion' })
   } catch (error) {
     throw error
   }

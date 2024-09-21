@@ -3,11 +3,8 @@ import { Construct } from 'constructs'
 import * as appsync from 'aws-cdk-lib/aws-appsync'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as cognito from 'aws-cdk-lib/aws-cognito'
-import { ResolverConstruct } from './constructs/resolver'
-import { ResolverType } from './constructs/types'
-
-const FUNCTIONS_DIR = './out/api/functions/'
-const RESOLVERS_DIR = './out/api/resolvers/'
+import * as lambda from 'aws-cdk-lib/aws-lambda'
+import * as iam from 'aws-cdk-lib/aws-iam'
 const SCHEMA_DIR = '../'
 
 interface GraphqlApiStackProps extends cdk.StackProps {
@@ -40,103 +37,144 @@ export class GraphqlApiStack extends cdk.Stack {
       }
     })
 
-    const userTable = new dynamodb.Table(this, 'UserTable', {
+    const userTable = new dynamodb.Table(this, 'dynamodb-user-table', {
+      tableName: 'UserTable',
       partitionKey: {
         name: 'id',
         type: dynamodb.AttributeType.STRING
       }
     })
 
-    const userDataSource = api.addDynamoDbDataSource('userDataSource', userTable)
+    const fields = [
+      { typeName: 'Query', fieldName: 'listUsers' },
+      { typeName: 'Query', fieldName: 'getUser' },
+      { typeName: 'Query', fieldName: 'suggestFriend' },
+      { typeName: 'Mutation', fieldName: 'createUser' },
+      { typeName: 'Mutation', fieldName: 'deleteUser' },
+      { typeName: 'Mutation', fieldName: 'updateUser' },
+      { typeName: 'Mutation', fieldName: 'requestFriend' },
 
-    new ResolverConstruct(this, 'list-users-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'listUsers',
-      resolverId: 'pipeline-resolver-list-users',
-      resolverFilePath: `${RESOLVERS_DIR}/user/listUsers.js`,
-      resolverType: ResolverType.Query
+    ]
+
+    // const functionMap = userFunctions.reduce((a: Map<string, appsync.AppsyncFunction>, c: string) => {
+    //   const func = new appsync.AppsyncFunction(this, fromCamelToKebab(`${c}-func`), {
+    //     name: `${c}Func`,
+    //     api,
+    //     dataSource: userDataSource,
+    //     code: appsync.Code.fromAsset(`${FUNCTIONS_DIR}/user/${c}.js`),
+    //     runtime: appsync.FunctionRuntime.JS_1_0_0
+    //   })
+
+    //   if (!a.get(c))
+    //     a.set(c, func)
+
+    //   return a
+    // }, new Map<string, appsync.AppsyncFunction>())
+
+    // const getPipeline = (names: string[]): appsync.AppsyncFunction[] => {
+    //   return names.map(p => {
+    //     const func = functionMap.get(p)
+
+    //     if (!func)
+    //       throw Error("function not found")
+
+    //     return func
+    //   })
+    // }
+
+    // for (const query of userResolvers.queries) {
+    //   const pipeline = getPipeline(query.pipeline)
+
+    //   new appsync.Resolver(this, fromCamelToKebab(`${query.name}-resolver`), {
+    //     api,
+    //     typeName: ResolverType.Query,
+    //     fieldName: `${query.name}`,
+    //     code: appsync.Code.fromAsset(`${RESOLVERS_DIR}/user/${query.name}.js`),
+    //     runtime: appsync.FunctionRuntime.JS_1_0_0,
+    //     pipelineConfig: pipeline
+    //   })
+    // }
+
+    // for (const mutation of userResolvers.mutations) {
+    //   const pipeline = getPipeline(mutation.pipeline)
+
+    //   new appsync.Resolver(this, fromCamelToKebab(`${mutation.name}-resolver`), {
+    //     api,
+    //     typeName: ResolverType.Mutation,
+    //     fieldName: `${mutation.name}`,
+    //     code: appsync.Code.fromAsset(`${RESOLVERS_DIR}/user/${mutation.name}.js`),
+    //     runtime: appsync.FunctionRuntime.JS_1_0_0,
+    //     pipelineConfig: pipeline
+    //   })
+    // }
+
+    const lambdaRole = new iam.Role(this, 'lambda-role', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      roleName: 'resolver-lambda-role'
     })
 
-    new ResolverConstruct(this, 'get-user-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'getUser',
-      resolverId: 'pipeline-resolver-get-user',
-      resolverFilePath: `${RESOLVERS_DIR}/user/getUser.js`,
-      resolverType: ResolverType.Query
+    lambdaRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        "dynamodb:*Item",
+        "dynamodb:Query"
+      ],
+      resources: [
+        userTable.tableArn
+      ]
+    }))
+
+    lambdaRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'logs:CreateLogGroup',
+        'logs:CreateLogStream',
+        'logs:PutLogEvents',
+        'logs:PutLogEventsBatch',
+      ],
+      resources: [
+        '*'
+      ]
+    }))
+
+
+    const lambdaFunction = new lambda.Function(this, 'resolver-lambda-function', {
+      functionName: "ResolverLambda",
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'lambda.handler',
+      code: lambda.Code.fromAsset(`./zip/lambda.zip`),
+      role: lambdaRole
     })
 
-    new ResolverConstruct(this, 'create-user-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'createUser',
-      resolverId: 'pipeline-resolver-create-user',
-      resolverFilePath: `${RESOLVERS_DIR}/user/createUser.js`,
-      resolverType: ResolverType.Mutation,
-      functionId: 'func-create-user',
-      functionName: 'create_user_func',
-      functionFilePath: `${FUNCTIONS_DIR}/user/createUser.js`
+    const appsyncRole = new iam.Role(this, 'appsync-role', {
+      assumedBy: new iam.ServicePrincipal('appsync.amazonaws.com'),
+      roleName: 'appsync-role'
     })
 
-    new ResolverConstruct(this, 'update-user-resolver', {
+    appsyncRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        "lambda:InvokeFunction"
+      ],
+      resources: [
+        lambdaFunction.functionArn
+      ]
+    }))
+
+    const lambdaDataSource = new appsync.LambdaDataSource(this, 'chat-app-lambda-data-source', {
+      name: 'chatapplambdadatasource',
       api,
-      dataSource: userDataSource,
-      fieldName: 'updateUser',
-      resolverId: 'pipeline-resolver-update-user',
-      resolverFilePath: `${RESOLVERS_DIR}/user/updateUser.js`,
-      resolverType: ResolverType.Mutation,
-      functionId: 'func-update-user',
-      functionName: 'update_user_func',
-      functionFilePath: `${FUNCTIONS_DIR}/user/updateUser.js`
+      lambdaFunction,
+      description: "resolver lambda function",
+      serviceRole: appsyncRole
     })
 
-    new ResolverConstruct(this, 'delete-user-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'deleteUser',
-      resolverId: 'pipeline-resolver-delete-user',
-      resolverFilePath: `${RESOLVERS_DIR}/user/deleteUser.js`,
-      resolverType: ResolverType.Mutation,
-      functionId: 'func-delete-user',
-      functionName: 'delete_user_func',
-      functionFilePath: `${FUNCTIONS_DIR}/user/deleteUser.js`
-    })
-
-    new ResolverConstruct(this, 'suggest-friend-resolver', {
-      api,
-      dataSource: userDataSource,
-      fieldName: 'suggestFriend',
-      resolverId: 'pipeline-resolver-suggest-friend',
-      resolverFilePath: `${RESOLVERS_DIR}/user/suggestFriend.js`,
-      resolverType: ResolverType.Query
-    })
-
-    // new ResolverConstruct(this, 'request-friend-resolver', {
-    //   api,
-    //   dataSource: userDataSource,
-    //   fieldName: 'requestFriend',
-    //   resolverId: 'pipeline-resolver-request-friend',
-    //   resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
-    //   resolverType: ResolverType.Mutation
-    // })
-
-    // new ResolverConstruct(this, 'accept-friend-request-resolver', {
-    //   api,
-    //   dataSource: userDataSource,
-    //   fieldName: 'acceptFriendRequest',
-    //   resolverId: 'pipeline-resolver-accept-friend-request',
-    //   resolverFilePath: `${RESOLVERS_DIR}/user/acceptFriendRequest.js`,
-    //   resolverType: ResolverType.Mutation
-    // })
-
-    // new ResolverConstruct(this, 'decline-friend-request-resolver', {
-    //   api,
-    //   dataSource: userDataSource,
-    //   fieldName: 'declineFriendRequest',
-    //   resolverId: 'pipeline-resolver-decline-friend-request',
-    //   resolverFilePath: `${RESOLVERS_DIR}/user/requestFriend.js`,
-    //   resolverType: ResolverType.Mutation
-    // })
+    for (const field of fields) {
+      lambdaDataSource.createResolver(`${field.fieldName}-resolver`, {
+        code: appsync.Code.fromAsset(`./out/resolver/resolver.js`),
+        runtime: appsync.FunctionRuntime.JS_1_0_0,
+        ...field,
+      })
+    }
   }
 }

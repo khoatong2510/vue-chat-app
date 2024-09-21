@@ -2,9 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import HomePage from '@/pages/home-page/HomePage.vue'
-import { useAuthStore } from '@/stores/auth'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
 import FriendSuggestionPage from '@/pages/FriendSuggestionPage.vue'
+
+import { useAuthStore } from '@/stores/auth'
+import { useUserProfileStore } from '@/stores/profile'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,9 +41,18 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const userProfileStore = useUserProfileStore()
   await authStore.getCurrentSession()
 
-  if (authStore.isAuth || to.name === 'login' || to.name === 'register') {
+  if (authStore.isAuth) {
+    await authStore.getCurrentUser()
+
+    if (authStore.user)
+      await userProfileStore.getUserProfile(authStore.user.userId)
+
+    next()
+  }
+  else if (to.name === 'login' || to.name === 'register') {
     next()
   } else {
     next({ name: 'login' })

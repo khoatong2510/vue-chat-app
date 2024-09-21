@@ -23,6 +23,7 @@ Amplify.configure({
 })
 
 const app = createApp(App)
+
 const store = createPinia()
 
 app.use(store)

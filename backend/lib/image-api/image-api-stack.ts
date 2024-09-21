@@ -35,13 +35,13 @@ export class ImageUploadApiStack extends cdk.Stack {
         's3:GetObject',
         's3:PutObject',
         's3:ListBucket',
-
       ],
       resources: [
         bucket.bucketArn,
         bucket.arnForObjects("*"),
       ]
     }))
+
 
     // const logRole = new iam.Role(this, 'cloudwatch-log-role', {
     //   assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),

@@ -61,10 +61,16 @@ const suggestFriend = async (id: string) => {
   return res.data
 }
 
+const requestFriend = async (id: string) => {
+  // do something here
+
+}
+
 
 export default {
   getUser,
   listUsers,
   createUser,
-  suggestFriend
+  suggestFriend,
+  requestFriend
 }

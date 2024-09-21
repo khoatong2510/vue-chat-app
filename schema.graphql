@@ -1,36 +1,64 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
-
-type User @aws_cognito_user_pools {
-  id: ID!
-  name: String
-  avatarUrl: String
-  friends: [ID]
+enum FriendStatus {
+  REQUESTED,
+  ACCEPTED,
+  BLOCKED
 }
 
-type Friend @aws_cognito_user_pools {
+type Friend {
+  id: ID!,
+  status: FriendStatus!
+}
+
+interface Profile {
   id: ID!,
   name: String,
   avatarUrl: String
 }
 
-type Query {
-  getUser(id: ID!): User @aws_cognito_user_pools
-  listUsers: [User]
-  suggestFriend(id: ID!): [Friend] @aws_cognito_user_pools
+type User implements Profile @aws_cognito_user_pools {
+  id: ID!,
+  name: String,
+  avatarUrl: String
+  friends: [Friend]
 }
 
-input CreateUserInput {
+
+type Result {
+  success: Boolean
+  error: String 
+}
+
+input FriendInput {
+  id: ID!,
+  status: FriendStatus!
+}
+
+input UserInput {
   id: ID!
   name: String!,
   avatarUrl: String!
+  friends: [FriendInput]
+}
+
+type Query {
+  getUser(id: ID!): User @aws_cognito_user_pools
+  listUsers: [User]
+  suggestFriend(id: ID!): [User] @aws_cognito_user_pools
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User @aws_cognito_user_pools
-  updateUser(id: ID!, values: CreateUserInput): User
+  createUser(input: UserInput!): User @aws_cognito_user_pools
+  updateUser(id: ID!, values: UserInput): User
   deleteUser(id: ID!): ID
+  requestFriend(id: ID!): ID @aws_cognito_user_pools
+}
+
+type Subscription {
+  onFriendRequested(from: ID!, to: ID!): ID @aws_subscribe(mutations: ["requestFriend"])
 }

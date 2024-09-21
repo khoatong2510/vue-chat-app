@@ -5,7 +5,10 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "build": "esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=out src/**/*.ts",
+    "build:resolver": "rmdir /s /q \"out/resolver\" & esbuild src/api/resolver/*.ts --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=out/resolver ",
+    "prebuild:lambda": "rmdir /s /q \"out/lambda\"",
+    "build:lambda": "esbuild src/api/lambda/*.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=out/lambda",
+    "postbuild:lambda": "tar -a -cvf ./zip/lambda.zip ./out/lambda/*",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
@@ -14,7 +17,8 @@
     "deploy:all": "cdk deploy --profile admin --all",
     "deploy:auth": "cdk deploy AuthStack --profile admin",
     "deploy:api": "cdk deploy ApiStack --profile admin",
-    "deploy:image-api": "cdk deploy ImageUploadApiStack --profile admin"
+    "deploy:image-api": "cdk deploy ImageUploadApiStack --profile admin",
+    "remove:api": "cdk destroy ApiStack --profile admin"
   },
   "devDependencies": {
     "@aws-appsync/utils": "^1.8.0",
@@ -29,6 +33,7 @@
   },
   "dependencies": {
     "aws-cdk-lib": "2.61.1",
+    "aws-sdk": "^2.1691.0",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.21",
     "uuid": "^10.0.0"

@@ -8,9 +8,6 @@ export enum ResolverType {
 export type ResolverConstructProps = {
   api: appsync.GraphqlApi,
   dataSource: appsync.DynamoDbDataSource,
-  functionId?: string,
-  functionName?: string,
-  functionFilePath?: string
   resolverId: string,
   fieldName: string
   resolverType: ResolverType,

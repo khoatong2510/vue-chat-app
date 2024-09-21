@@ -17,6 +17,9 @@ coverage
 /cypress/videos/
 /cypress/screenshots/
 
+/backend/out/
+/backend/zip/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -38,3 +41,6 @@ node_modules
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+.env
+

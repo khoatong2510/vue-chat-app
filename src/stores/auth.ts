@@ -26,6 +26,9 @@ export const useAuthStore = defineStore('auth', {
     },
     async getCurrentSession() {
       this.hasValidSession = await authService.currentSession()
+
+      if (this.hasValidSession)
+        this.user = await authService.currentAuthUser()
     },
     async signUp({ email, password }: Service.AuthInput) {
       await authService.handleSignUp({

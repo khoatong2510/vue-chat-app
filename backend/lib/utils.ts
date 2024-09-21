@@ -16,3 +16,9 @@ export const bundleAppSyncResolver = (entryPoint: string): Code => {
 
   return Code.fromInline(result.outputFiles[0].text)
 }
+
+export const fromCamelToKebab = (text: string): string => {
+  return text
+    .replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)
+    .replace(/^-/, '')
+}
