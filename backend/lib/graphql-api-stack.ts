@@ -143,7 +143,9 @@ export class GraphqlApiStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'lambda.handler',
       code: lambda.Code.fromAsset(`./zip/lambda.zip`),
-      role: lambdaRole
+      role: lambdaRole,
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 512
     })
 
     const appsyncRole = new iam.Role(this, 'appsync-role', {

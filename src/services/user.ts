@@ -31,19 +31,20 @@ const createUser = async (input: Service.CreateUserInput) => {
   return res.data.createUser
 }
 
-const getUser = async (id: string) => {
-  const res = await client.graphql({
-    authMode: "userPool",
-    query: queries.getUser,
-    variables: {
-      id
-    }
-  }) as GraphQLResult<{ getUser: Service.User }>
+const getUser = async (id: string): Promise<Service.User | null> => {
+  try {
+    const res = await client.graphql({
+      authMode: "userPool",
+      query: queries.getUser,
+      variables: {
+        id
+      }
+    }) as GraphQLResult<{ getUser: Service.User }>
 
-  if (res.errors)
-    throw res.errors
-
-  return res.data.getUser
+    return res.data.getUser
+  } catch (error) {
+    throw error
+  }
 }
 
 const suggestFriend = async (id: string) => {

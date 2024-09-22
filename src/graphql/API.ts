@@ -2,53 +2,80 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreateUserInput = {
+export type UserInput = {
   id: string,
   name: string,
   avatarUrl: string,
+  friends?: Array< FriendInput | null > | null,
 };
+
+export type FriendInput = {
+  id: string,
+  status: FriendStatus,
+};
+
+export enum FriendStatus {
+  REQUESTED = "REQUESTED",
+  ACCEPTED = "ACCEPTED",
+  BLOCKED = "BLOCKED",
+}
+
 
 export type User = {
   __typename: "User",
-  id?: string,
+  id?: string | null,
   name?: string | null,
   avatarUrl?: string | null,
-  friends?: Array< string | null > | null,
+  friends?:  Array<Friend | null > | null,
+};
+
+export type Profile = {
+  __typename: "Profile",
+  id?: string | null,
+  name?: string | null,
+  avatarUrl?: string | null,
 };
 
 export type Friend = {
   __typename: "Friend",
   id?: string,
-  name?: string | null,
-  avatarUrl?: string | null,
+  status?: FriendStatus,
 };
 
 export type CreateUserMutationVariables = {
-  input?: CreateUserInput,
+  input?: UserInput,
 };
 
 export type CreateUserMutation = {
   createUser?:  {
     __typename: "User",
-    id: string,
+    id?: string | null,
     name?: string | null,
     avatarUrl?: string | null,
-    friends?: Array< string | null > | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
   } | null,
 };
 
 export type UpdateUserMutationVariables = {
   id?: string,
-  values?: CreateUserInput | null,
+  values?: UserInput | null,
 };
 
 export type UpdateUserMutation = {
   updateUser?:  {
     __typename: "User",
-    id: string,
+    id?: string | null,
     name?: string | null,
     avatarUrl?: string | null,
-    friends?: Array< string | null > | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
   } | null,
 };
 
@@ -60,6 +87,14 @@ export type DeleteUserMutation = {
   deleteUser?: string | null,
 };
 
+export type RequestFriendMutationVariables = {
+  id?: string,
+};
+
+export type RequestFriendMutation = {
+  requestFriend?: string | null,
+};
+
 export type GetUserQueryVariables = {
   id?: string,
 };
@@ -67,20 +102,28 @@ export type GetUserQueryVariables = {
 export type GetUserQuery = {
   getUser?:  {
     __typename: "User",
-    id: string,
+    id?: string | null,
     name?: string | null,
     avatarUrl?: string | null,
-    friends?: Array< string | null > | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
   } | null,
 };
 
 export type ListUsersQuery = {
   listUsers?:  Array< {
     __typename: "User",
-    id: string,
+    id?: string | null,
     name?: string | null,
     avatarUrl?: string | null,
-    friends?: Array< string | null > | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
   } | null > | null,
 };
 
@@ -90,9 +133,23 @@ export type SuggestFriendQueryVariables = {
 
 export type SuggestFriendQuery = {
   suggestFriend?:  Array< {
-    __typename: "Friend",
-    id: string,
+    __typename: "User",
+    id?: string | null,
     name?: string | null,
     avatarUrl?: string | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
   } | null > | null,
+};
+
+export type OnFriendRequestedSubscriptionVariables = {
+  from?: string,
+  to?: string,
+};
+
+export type OnFriendRequestedSubscription = {
+  onFriendRequested?: string | null,
 };

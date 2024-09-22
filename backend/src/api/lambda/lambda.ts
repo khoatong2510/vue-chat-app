@@ -1,12 +1,14 @@
-import { Context, Handler } from 'aws-lambda'
+import { Context } from 'aws-lambda'
 import { DynamoDB } from 'aws-sdk'
 import UserOperations from '../operations/user'
+import { AppSyncIdentityCognito } from '@aws-appsync/utils'
 
 const dynamodb = new DynamoDB.DocumentClient()
 
 type AppsyncResolverEvent = {
   field: string,
-  argurments: object
+  argurments: object,
+  identity: AppSyncIdentityCognito
 }
 
 type HandlerReturnType = {
@@ -23,7 +25,10 @@ type Operations = {
 
 
 export const handler = async (event: AppsyncResolverEvent, context: Context): Promise<HandlerReturnType> => {
-  if (!context.identity) {
+  console.log("event", event)
+  console.log("context", context)
+
+  if (!event.identity) {
     console.warn("no identity")
   }
 
@@ -34,11 +39,18 @@ export const handler = async (event: AppsyncResolverEvent, context: Context): Pr
     ...UserOperations
   }
 
+  console.log("field", field)
+  console.log("args", args)
+
+  if (!field)
+    throw Error(`Invalid field ${field}`)
+
   if (!Object.keys(operations).includes(field))
     throw Error(`No operator to handle ${field} resolver`)
 
   try {
-    const res = await operations[field](dynamodb, { ...context.identity })(args)
+    const asyncFunc = operations[field](dynamodb, { id: event.identity.sub })
+    const res = await asyncFunc(args)
 
     return {
       result: res
@@ -50,6 +62,4 @@ export const handler = async (event: AppsyncResolverEvent, context: Context): Pr
       }
     }
   }
-
-
 }

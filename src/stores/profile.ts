@@ -22,7 +22,12 @@ export const useUserProfileStore = defineStore('userProfile', {
   },
   actions: {
     async getUserProfile(userId: string): Promise<void> {
-      const { id, name, avatarUrl } = await userService.getUser(userId)
+      const userProfile = await userService.getUser(userId)
+
+      if (!userProfile)
+        return
+
+      const { id, name, avatarUrl } = userProfile
 
       this.id = id
       this.name = name

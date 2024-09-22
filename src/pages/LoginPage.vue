@@ -58,7 +58,6 @@ const login = async (): Promise<void> => {
 
     const userId = authStore.user.userId
     // loading user profile
-    console.log("userId", userId)
     
     const userProfile = await UserService.getUser(userId)
     

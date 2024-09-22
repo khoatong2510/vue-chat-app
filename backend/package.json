@@ -6,9 +6,9 @@
   },
   "scripts": {
     "build:resolver": "rmdir /s /q \"out/resolver\" & esbuild src/api/resolver/*.ts --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=out/resolver ",
-    "prebuild:lambda": "rmdir /s /q \"out/lambda\"",
+    "prebuild:lambda": "rmdir /s /q \"out/lambda\" & del zip\\lambda.zip",
     "build:lambda": "esbuild src/api/lambda/*.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=out/lambda",
-    "postbuild:lambda": "tar -a -cvf ./zip/lambda.zip ./out/lambda/*",
+    "postbuild:lambda": "tar -C out/lambda -a -cvf ./zip/lambda.zip *",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",

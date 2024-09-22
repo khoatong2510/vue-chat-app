@@ -1,6 +1,5 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { ID, User } from "./types"
-
 import { AppSyncIdentityCognito } from 'aws-lambda'
 
 const USER_TABLE_NAME = "UserTable" as const
@@ -18,16 +17,21 @@ const listUsers = (dynamodb: DocumentClient, userContext: AppSyncIdentityCognito
   return res.Items as User[]
 }
 
-const getUser = (dynamodb: DocumentClient, userContext: AppSyncIdentityCognito) => async (id: string): Promise<User> => {
-  const res = await dynamodb.get({
-    TableName: USER_TABLE_NAME,
-    Key: { id },
-  }).promise()
+const getUser = (dynamodb: DocumentClient, userContext: AppSyncIdentityCognito) => async ({ id }: { id: string }): Promise<User> => {
+  try {
+    const res = await dynamodb.get({
+      TableName: USER_TABLE_NAME,
+      Key: {
+        id
+      },
+    }).promise()
 
-  if (!res.Item)
-    throw Error("User Not Found")
+    console.log("getUser res.Item", res.Item)
 
-  return res.Item as User
+    return res.Item as User
+  } catch (error) {
+    throw error
+  }
 }
 
 const suggestFriend = (dynamodb: DocumentClient, userContext: AppSyncIdentityCognito) => async (): Promise<ID[]> => {

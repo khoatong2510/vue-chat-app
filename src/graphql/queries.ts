@@ -8,7 +8,10 @@ export const getUser = /* GraphQL */ `
       id
       name
       avatarUrl
-      friends
+      friends {
+        id
+        status
+      }
     }
   }
 `;
@@ -18,7 +21,10 @@ export const listUsers = /* GraphQL */ `
       id
       name
       avatarUrl
-      friends
+      friends {
+        id
+        status
+      }
     }
   }
 `;
@@ -28,6 +34,10 @@ export const suggestFriend = /* GraphQL */ `
       id
       name
       avatarUrl
+      friends {
+        id
+        status
+      }
     }
   }
 `;
