@@ -16,8 +16,8 @@ const model = defineModel({ required: true })
   <div>
     <span 
       v-if="props.label"
-      class="text-xs text-gray-600"
-      :class="props.error ? 'text-red-500' : ''"
+      class="text-xs"
+      :class="props.error ? 'text-error' : ''"
     >
       {{ props.label }}
     </span>
@@ -26,13 +26,17 @@ const model = defineModel({ required: true })
       v-model="model"
       :type="props.type"
       :placeholder="props.placeholder"
-      class="w-full p-2 mt-1 border border-solid focus:outline-none focus:border-sky-500 focus:shadow-md rounded-md"
-      :class="props.error ? 'border-red-500' : 'border-slate-300'"
+      class="
+        w-full p-2 mt-1 rounded-md
+        border border-solid border-outlineVariant bg-tertiaryContainer bg-opacity-50
+        focus:outline-none focus:border-outline focus:shadow-md focus:bg-opacity-75
+      "
+      :class="props.error ? 'border-error' : 'border-outline'"
     />
 
     <span 
       v-if="props.error" 
-      class="text-sm text-red-500"
+      class="text-sm text-error"
     >
       {{ props.error }}
     </span>

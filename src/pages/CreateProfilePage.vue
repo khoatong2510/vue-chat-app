@@ -61,38 +61,35 @@ const onCreateUser = async () => {
 </script>
 
 <template>
-  <div class="w-screen h-screen flex flex-col bg-gray-100">
-    <!-- nav -->
-    <div class="flex-none fixed w-full top-0 flex items-end justify-end p-2">
-      <button class="bg-gray-700 text-white px-4 py-2 rounded-xl hover:bg-gray-600 active:bg-gray-800 duration-200"
-        @click="signOut">
-        Sign Out
-      </button>
-    </div>
+  <div class="flex-none fixed w-full top-0 flex items-end justify-end p-2 bg-surface text-onSurface">
+    <button class="bg-primary text-onPrimary px-4 py-2 rounded-xl hover:bg-opacity-80 active:bg-opacity-90 duration-200"
+      @click="signOut">
+      Sign Out
+    </button>
+  </div>
 
-    <div class="flex-1 flex items-center justify-center">
-      <div
-        class="min-w-[600px] flex flex-col gap-y-4 rounded-3xl border border-solid bg-white border-slate-200 p-8 shadow-lg">
-        <div class="">
-          <p class="text-2xl font-semibold">
-            Welcome to My Chat App
-          </p>
+  <div class="flex-1 flex items-center justify-center">
+    <div
+      class="min-w-[600px] flex flex-col gap-y-4 rounded-3xl border border-solid bg-white border-slate-200 p-8 shadow-lg">
+      <div class="">
+        <p class="text-2xl font-semibold">
+          Welcome to My Chat App
+        </p>
 
-          <p class="font-sans">
-            Please create your profile
-          </p>
-        </div>
+        <p class="font-sans">
+          Please create your profile
+        </p>
+      </div>
 
-        <div class="flex flex-col gap-4">
-          <ImageUpload v-model="uploadFile" />
+      <div class="flex flex-col gap-4">
+        <ImageUpload v-model="uploadFile" />
 
-          <InputField v-model="userName" class="w-full" label="Profile Name" type="text" placeholder="Profile name" />
+        <InputField v-model="userName" class="w-full" label="Profile Name" type="text" placeholder="Profile name" />
 
-          <div>
-            <button class="bg-gray-700 text-white px-2 py-2 rounded-lg w-full" @click="onCreateUser">
-              Create Profile
-            </button>
-          </div>
+        <div>
+          <button class="bg-gray-700 text-white px-2 py-2 rounded-lg w-full" @click="onCreateUser">
+            Create Profile
+          </button>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
 import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
+import Button from '@/components/Button.vue'
 import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
 import { useRouter } from 'vue-router'
@@ -105,55 +106,52 @@ const passwordErrorMessage = computed<string | null>(() => {
 </script>
 
 <template>
-  <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
-    <div
-      class="bg-slate-100 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-end login-page-bg-image"
-    >
-      <div class="w-1/2 flex flex-col gap-4 justify-center">
-        <div class="font-bold text-2xl">Welcome!</div>
+  <div
+    class="bg-surfaceContainerLow h-2/3 shadow-lg shadow-surfaceLow rounded-3xl p-8 flex items-center justify-center"
+  >
+    <div class="flex flex-col gap-2 justify-center">
+      <div class="font-bold text-2xl">Welcome!</div>
 
-        <div>
-          <a 
-            class="underline font-semibold cursor-pointer hover:text-orange-400" 
-            href="/register"
-          >
-            Create a new account
-          </a>
-          or login to get started using Chat App
-        </div>
+      <div>
+        <a 
+          class="underline font-semibold cursor-pointer text-secondary hover:text-opacity-75" 
+          href="/register"
+        >
+          Create a new account
+        </a>
+        or login to get started using Chat App
+      </div>
 
-        <div class="flex flex-col gap-4">
-          <InputField 
-            v-model="state.email"
-            type="email" 
-            label="Email" 
-            :error="emailFrontEndErrorMessage || backendErrorMessage" 
+      <div class="flex flex-col gap-4">
+        <InputField 
+          v-model="state.email"
+          type="email" 
+          label="Email" 
+          :error="emailFrontEndErrorMessage || backendErrorMessage" 
+        />
+
+        <InputField
+          v-model="state.password"
+          type="password"
+          label="Password"
+          :error="passwordErrorMessage"
+        />
+
+        <a class="block w-full text-right underline cursor-pointer text-secondary hover:text-opacity-75 text-sm">
+          Forgot Password?
+        </a>
+
+        <Button
+          type="tertiary" 
+          @click="login"
+        >
+          <Spinner 
+            v-if="isLoading"
+            class="h-5 w-5" 
           />
-
-          <InputField
-            v-model="state.password"
-            type="password"
-            label="Password"
-            :error="passwordErrorMessage"
-          />
-
-          <a class="block w-full text-right underline cursor-pointer hover:text-orange-400">
-            Forgot Password?
-          </a>
-
-          <button
-            class="
-              w-full rounded-2xl bg-slate-600 text-white py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
-            @click="login"
-          >
-            <Spinner 
-              v-if="isLoading"
-              class="h-5 w-5" 
-            />
-            
-            <span v-else> Login </span>
-          </button>
-        </div>
+          
+          <span v-else> Login </span>
+        </Button>
       </div>
     </div>
   </div>

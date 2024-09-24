@@ -87,11 +87,14 @@ const confirmPasswordErrorMessage = computed<string | null>(() => {
 })
 
 const register = async () => {
-  isLoading.value = true
 
   const isValid = await v$.value.$validate()
 
-  if (!isValid) return
+  if (!isValid)
+    return
+
+  isLoading.value = true
+
 
   try {
     await authStore.signUp({ 
@@ -106,6 +109,8 @@ const register = async () => {
   } catch (error) {
     emailBackendError.value = (error as CognitoIdentityProviderServiceException).name
     isLoading.value = false
+  } finally {
+    isLoading.value = false
   }
 
   // go back to login page
@@ -119,13 +124,12 @@ const backToLogin = () => {
 </script>
 
 <template>
-  <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
     <div
-      class="bg-slate-100 w-4/5 h-4/5 shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4 register-page-bg-image"
+      class="bg-surface h-2/3 shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4"
     >
       <div 
         v-if="!isSucceeded" 
-        class="w-1/2 flex flex-col gap-4 justify-center"
+        class="flex flex-col gap-4 justify-center"
       >
         <div class="font-bold text-2xl">Create an account</div>
 
@@ -154,7 +158,8 @@ const backToLogin = () => {
           />
 
           <button
-            class="mt-2 w-full rounded-2xl bg-slate-600 text-white py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
+            class="
+              mt-2 w-full rounded-2xl bg-primary text-onPrimary py-2 hover:bg-opacity-80 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
             @click="register"
           >
             <Spinner v-if="isLoading" class="h-5 w-5" />
@@ -178,7 +183,6 @@ const backToLogin = () => {
         </button>
       </div>
     </div>
-  </div>
 </template>
 
 <style>
