@@ -5,7 +5,6 @@ export namespace Service {
   }
 
   export type CreateUserInput = {
-    id: string
     name: string
     avatarUrl: string
   }
@@ -15,4 +14,5 @@ export namespace Service {
     name: string
     avatarUrl: string
   }
+
 }

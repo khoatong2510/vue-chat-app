@@ -6,6 +6,7 @@ import ImageUpload from '@/components/ImageUpload.vue'
 import { ref } from 'vue'
 import authService from '@/services/amplify-auth'
 import { useUserProfileStore } from '@/stores/profile'
+import Button from '@/components/Button.vue'
 
 const authStore = useAuthStore()
 const userProfileStore = useUserProfileStore()
@@ -26,8 +27,9 @@ const signOut = async () => {
 
 const onCreateUser = async () => {
   try {
-    if (!uploadFile.value)
-      return
+    if (!uploadFile.value) {
+      throw Error("No Profile Picture")
+    }
 
     await authStore.getCurrentUser()
     const userId = authStore.user?.userId
@@ -47,10 +49,11 @@ const onCreateUser = async () => {
     })
 
     await userProfileStore.createUserProfile({
-      id: userId,
       name: userName.value,
       avatarUrl: res.url
     })
+
+    await userProfileStore.getUserProfile(userId)
 
     router.push({ name: 'friend-suggestion' })
   } catch (error) {
@@ -61,16 +64,18 @@ const onCreateUser = async () => {
 </script>
 
 <template>
-  <div class="flex-none fixed w-full top-0 flex items-end justify-end p-2 bg-surface text-onSurface">
-    <button class="bg-primary text-onPrimary px-4 py-2 rounded-xl hover:bg-opacity-80 active:bg-opacity-90 duration-200"
+  <div class="flex-none fixed w-full top-0 flex items-end justify-end p-2">
+    <Button
+      type="tertiary" 
+      class="w-1/12"
       @click="signOut">
       Sign Out
-    </button>
+    </Button>
   </div>
 
-  <div class="flex-1 flex items-center justify-center">
+  <div class="flex-1 flex items-center justify-center ">
     <div
-      class="min-w-[600px] flex flex-col gap-y-4 rounded-3xl border border-solid bg-white border-slate-200 p-8 shadow-lg">
+      class=" flex flex-col gap-y-4 rounded-3xl border border-solid border-outlineVariant p-8 shadow-md bg-surfaceContainerLow">
       <div class="">
         <p class="text-2xl font-semibold">
           Welcome to My Chat App
@@ -87,9 +92,13 @@ const onCreateUser = async () => {
         <InputField v-model="userName" class="w-full" label="Profile Name" type="text" placeholder="Profile name" />
 
         <div>
-          <button class="bg-gray-700 text-white px-2 py-2 rounded-lg w-full" @click="onCreateUser">
+          <Button
+            class="w-full" 
+            type="primary" 
+            @click="onCreateUser"
+          >
             Create Profile
-          </button>
+          </Button>
         </div>
       </div>
     </div>

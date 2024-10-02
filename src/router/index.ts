@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, type RouteLocation } from 'vue-router'
-import AppEntry from '@/pages/AppEntry.vue'
 import AppLayout from '@/pages/AppLayout.vue'
 import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
@@ -8,20 +7,31 @@ import CreateProfilePage from '@/pages/CreateProfilePage.vue'
 import FriendSuggestionPage from '@/pages/FriendSuggestionPage.vue'
 import ColorPalette from '@/pages/ColorPalette.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useUserProfileStore } from '@/stores/profile'
 
-const appEntryGuard = async (to: RouteLocation, from: RouteLocation, next: Function) => {
+
+const validateUserSession = async (to: RouteLocation, from: RouteLocation, next: Function) => {
   const authStore = useAuthStore()
-  await authStore.getCurrentSession()
+  const userProfileStore = useUserProfileStore()
 
+  await authStore.getCurrentSession()
   if (!to.meta.authRequired)
     next()
 
   if (authStore.isAuth) {
     await authStore.getCurrentUser()
+    if (!authStore.user?.userId) {
+      next({ name: 'login' })
+      return
+    }
+
+    const userId = authStore.user?.userId
+    await userProfileStore.getUserProfile(userId)
     next()
   } else
     next({ name: 'login' })
 }
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,11 +59,11 @@ const router = createRouter({
         {
           path: '/',
           name: 'app-entry',
-          component: AppEntry,
           meta: {
             authRequired: true
           },
-          beforeEnter: appEntryGuard,
+          // component: AppEntry,
+          beforeEnter: validateUserSession,
           children: [
             {
               path: '/create-profile',

@@ -30,14 +30,6 @@ export const listUsers = /* GraphQL */ `
 `;
 export const suggestFriend = /* GraphQL */ `
   query SuggestFriend($id: ID!) {
-    suggestFriend(id: $id) {
-      id
-      name
-      avatarUrl
-      friends {
-        id
-        status
-      }
-    }
+    suggestFriend(id: $id)
   }
 `;

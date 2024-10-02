@@ -77,11 +77,11 @@ const onChange = async (e: any) => {
       <img v-if="model" ref="imgRef" alt="profile-image" class="w-32 h-32 rounded-full cursor-pointer" />
 
       <div v-else
-        class="p-4 rounded-full border border-solid border-gray-500 cursor-pointer hover:blur-sm transition-all duration-200 ease-in-out">
-        <UserIcon class="w-32 h-32 text-gray-500" />
+        class="p-4 rounded-full border border-solid border-onSurfaceVariant cursor-pointer hover:blur-sm transition-all duration-200 ease-in-out">
+        <UserIcon class="w-32 h-32 text-onSurfaceVariant" />
       </div>
 
-      <span class="text-sm mt-2 text-gray-500">Upload Image</span>
+      <span class="text-sm mt-2 text-onSurfaceVariant">Upload Image</span>
     </div>
 
     <span v-if="avatarUploadError" class="text-xs mt-2 text-red-500">

@@ -1,33 +1,17 @@
 import { Context } from 'aws-lambda'
-import { DynamoDB } from 'aws-sdk'
-import UserOperations from '../operations/user'
-import { AppSyncIdentityCognito } from '@aws-appsync/utils'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import UserController from '../controllers/user-controller'
+import { AppsyncResolverEvent, DbContext, HandlerReturnType, Controller } from './types'
 
-const dynamodb = new DynamoDB.DocumentClient()
+if (!process.env.USER_TABLE)
+  throw Error("USER_TABLE value is not set")
 
-type AppsyncResolverEvent = {
-  field: string,
-  argurments: object,
-  identity: AppSyncIdentityCognito
+const dbContext: DbContext = {
+  dynamodb: new DynamoDBClient(),
+  userTableName: process.env.USER_TABLE
 }
-
-type HandlerReturnType = {
-  result?: object,
-  error?: {
-    message: string,
-    type?: string
-  }
-}
-
-type Operations = {
-  [key: string]: Function
-}
-
 
 export const handler = async (event: AppsyncResolverEvent, context: Context): Promise<HandlerReturnType> => {
-  console.log("event", event)
-  console.log("context", context)
-
   if (!event.identity) {
     console.warn("no identity")
   }
@@ -35,31 +19,24 @@ export const handler = async (event: AppsyncResolverEvent, context: Context): Pr
   const field: string = event.field
   const args = event.argurments
 
-  const operations: Operations = {
-    ...UserOperations
+  const controllers: Controller = {
+    ...UserController
   }
-
-  console.log("field", field)
-  console.log("args", args)
 
   if (!field)
     throw Error(`Invalid field ${field}`)
 
-  if (!Object.keys(operations).includes(field))
+  if (!Object.keys(UserController).includes(field))
     throw Error(`No operator to handle ${field} resolver`)
 
   try {
-    const asyncFunc = operations[field](dynamodb, { id: event.identity.sub })
+    const asyncFunc = controllers[field](dbContext, { id: event.identity.sub })
     const res = await asyncFunc(args)
 
-    return {
-      result: res
-    }
+    return res
   } catch (error) {
     return {
-      error: {
-        message: (error as Error).message
-      }
+      error: error as any
     }
   }
 }

@@ -8,7 +8,6 @@ import Button from '@/components/Button.vue'
 import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
 import { useRouter } from 'vue-router'
-import UserService from '@/services/user'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -56,22 +55,11 @@ const login = async (): Promise<void> => {
 
     if (!authStore.user)
       throw new Error("User Data not found")
-
-    const userId = authStore.user.userId
-    // loading user profile
-    
-    const userProfile = await UserService.getUser(userId)
     
     isLoading.value = false
 
-    if (userProfile) {
-      router.push({ name: 'home' })
-    } else {
-      router.push({ name: 'create-profile' })
-    }
-    
+    router.push({ name: 'home' })
   } catch (error) {
-    console.log(error)
     backendError.value = (error as CognitoIdentityProviderServiceException).name
     isLoading.value = false
   }

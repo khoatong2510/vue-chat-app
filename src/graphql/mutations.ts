@@ -3,20 +3,15 @@
 // this is an auto generated file. This will be overwritten
 
 export const createUser = /* GraphQL */ `
-  mutation CreateUser($input: UserInput!) {
+  mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
-      id
-      name
-      avatarUrl
-      friends {
-        id
-        status
-      }
+      success
+      error
     }
   }
 `;
 export const updateUser = /* GraphQL */ `
-  mutation UpdateUser($id: ID!, $values: UserInput) {
+  mutation UpdateUser($id: ID!, $values: UpdateUserInput) {
     updateUser(id: $id, values: $values) {
       id
       name

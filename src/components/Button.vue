@@ -21,7 +21,7 @@ const buttonColorCss = computed(() => {
 <template>
   <button 
     class="
-      w-full rounded-2xl py-2
+      rounded-2xl py-2
       min-h-10
       shadow-sm
       hover:opacity-80 hover:shadow-md

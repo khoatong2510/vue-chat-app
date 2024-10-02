@@ -38,7 +38,7 @@ export class GraphqlApiStack extends cdk.Stack {
     })
 
     const userTable = new dynamodb.Table(this, 'dynamodb-user-table', {
-      tableName: 'UserTable',
+      tableName: 'UserTable2',
       partitionKey: {
         name: 'id',
         type: dynamodb.AttributeType.STRING
@@ -117,7 +117,8 @@ export class GraphqlApiStack extends cdk.Stack {
       effect: iam.Effect.ALLOW,
       actions: [
         "dynamodb:*Item",
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:Scan"
       ],
       resources: [
         userTable.tableArn
@@ -145,7 +146,10 @@ export class GraphqlApiStack extends cdk.Stack {
       code: lambda.Code.fromAsset(`./zip/lambda.zip`),
       role: lambdaRole,
       timeout: cdk.Duration.seconds(10),
-      memorySize: 512
+      memorySize: 512,
+      environment: {
+        USER_TABLE: userTable.tableName
+      }
     })
 
     const appsyncRole = new iam.Role(this, 'appsync-role', {

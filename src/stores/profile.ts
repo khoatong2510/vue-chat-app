@@ -46,7 +46,7 @@ export const useUserProfileStore = defineStore('userProfile', {
       const url = await toBase64(blob)
       this.avatarUrl = url
     },
-    async createUserProfile(input: { id: string, name: string, avatarUrl: string }): Promise<void> {
+    async createUserProfile(input: { name: string, avatarUrl: string }): Promise<void> {
       await userService.createUser(input)
     },
     async suggestFriend(): Promise<void> {

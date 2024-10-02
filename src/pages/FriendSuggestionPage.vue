@@ -11,6 +11,8 @@ onMounted(async (): Promise<void> => {
   if (!authStore.user)
     return
 
+  console.log(userProfileStore.id)
+
   await userProfileStore.suggestFriend()
 })
 

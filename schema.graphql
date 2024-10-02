@@ -15,21 +15,14 @@ type Friend {
   status: FriendStatus!
 }
 
-interface Profile {
-  id: ID!,
-  name: String,
-  avatarUrl: String
-}
-
-type User implements Profile @aws_cognito_user_pools {
+type User @aws_cognito_user_pools {
   id: ID!,
   name: String,
   avatarUrl: String
   friends: [Friend]
 }
 
-
-type Result {
+type Result @aws_cognito_user_pools {
   success: Boolean
   error: String 
 }
@@ -39,22 +32,26 @@ input FriendInput {
   status: FriendStatus!
 }
 
-input UserInput {
-  id: ID!
+input CreateUserInput {
   name: String!,
   avatarUrl: String!
+}
+
+input UpdateUserInput {
+  name: String,
+  avatarUrl: String
   friends: [FriendInput]
 }
 
 type Query {
   getUser(id: ID!): User @aws_cognito_user_pools
   listUsers: [User]
-  suggestFriend(id: ID!): [User] @aws_cognito_user_pools
+  suggestFriend(id: ID!): [ID] @aws_cognito_user_pools
 }
 
 type Mutation {
-  createUser(input: UserInput!): User @aws_cognito_user_pools
-  updateUser(id: ID!, values: UserInput): User
+  createUser(input: CreateUserInput!): Result @aws_cognito_user_pools
+  updateUser(id: ID!, values: UpdateUserInput): User
   deleteUser(id: ID!): ID
   requestFriend(id: ID!): ID @aws_cognito_user_pools
 }

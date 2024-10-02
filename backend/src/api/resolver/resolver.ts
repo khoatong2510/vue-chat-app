@@ -16,6 +16,7 @@ const request = (ctx: Context) => {
 
 const response = (ctx: Context) => {
   // handling error here
+  console.log("resolver ctx", ctx)
   if (ctx.result.error)
     util.error(ctx.result.error.message, "Runtime Error")
   else if (Object.keys(ctx.result).length === 0) // empty object

@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 import { argbFromHex, hexFromArgb, SchemeContent, themeFromSourceColor, Hct, MaterialDynamicColors, DynamicScheme, TonalPalette } from '@material/material-color-utilities'
-const primary = argbFromHex('#d26470')
+const primary = argbFromHex('#36364e')
 const secondary = argbFromHex('#fb9b63')
-const tertiary = argbFromHex('#f9b3b3')
+const tertiary = argbFromHex('#e9e9e9')
 const neutral = argbFromHex('#e9e9e9')
 const neutralVariant = argbFromHex('#8c8c99')
 
@@ -19,12 +19,12 @@ const Variant = {
 }
 
 const scheme = new DynamicScheme({
-  sourceColorArgb: secondary,
+  sourceColorArgb: primary,
   variant: Variant.TONAL_SPOT,
   isDark: false,
   contrastLevel: 0.0,
-  primaryPalette: TonalPalette.fromInt(secondary),
-  secondaryPalette: TonalPalette.fromInt(primary),
+  primaryPalette: TonalPalette.fromInt(primary),
+  secondaryPalette: TonalPalette.fromInt(secondary),
   tertiaryPalette: TonalPalette.fromInt(tertiary),
   neutralPalette: TonalPalette.fromInt(neutral),
   neutralVariantPalette: TonalPalette.fromInt(neutralVariant)

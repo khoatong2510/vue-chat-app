@@ -2,10 +2,20 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type UserInput = {
-  id: string,
+export type CreateUserInput = {
   name: string,
   avatarUrl: string,
+};
+
+export type Result = {
+  __typename: "Result",
+  success?: boolean | null,
+  error?: string | null,
+};
+
+export type UpdateUserInput = {
+  name?: string | null,
+  avatarUrl?: string | null,
   friends?: Array< FriendInput | null > | null,
 };
 
@@ -23,17 +33,10 @@ export enum FriendStatus {
 
 export type User = {
   __typename: "User",
-  id?: string | null,
+  id?: string,
   name?: string | null,
   avatarUrl?: string | null,
   friends?:  Array<Friend | null > | null,
-};
-
-export type Profile = {
-  __typename: "Profile",
-  id?: string | null,
-  name?: string | null,
-  avatarUrl?: string | null,
 };
 
 export type Friend = {
@@ -43,32 +46,26 @@ export type Friend = {
 };
 
 export type CreateUserMutationVariables = {
-  input?: UserInput,
+  input?: CreateUserInput,
 };
 
 export type CreateUserMutation = {
   createUser?:  {
-    __typename: "User",
-    id?: string | null,
-    name?: string | null,
-    avatarUrl?: string | null,
-    friends?:  Array< {
-      __typename: "Friend",
-      id: string,
-      status: FriendStatus,
-    } | null > | null,
+    __typename: "Result",
+    success?: boolean | null,
+    error?: string | null,
   } | null,
 };
 
 export type UpdateUserMutationVariables = {
   id?: string,
-  values?: UserInput | null,
+  values?: UpdateUserInput | null,
 };
 
 export type UpdateUserMutation = {
   updateUser?:  {
     __typename: "User",
-    id?: string | null,
+    id: string,
     name?: string | null,
     avatarUrl?: string | null,
     friends?:  Array< {
@@ -102,7 +99,7 @@ export type GetUserQueryVariables = {
 export type GetUserQuery = {
   getUser?:  {
     __typename: "User",
-    id?: string | null,
+    id: string,
     name?: string | null,
     avatarUrl?: string | null,
     friends?:  Array< {
@@ -116,7 +113,7 @@ export type GetUserQuery = {
 export type ListUsersQuery = {
   listUsers?:  Array< {
     __typename: "User",
-    id?: string | null,
+    id: string,
     name?: string | null,
     avatarUrl?: string | null,
     friends?:  Array< {
@@ -132,17 +129,7 @@ export type SuggestFriendQueryVariables = {
 };
 
 export type SuggestFriendQuery = {
-  suggestFriend?:  Array< {
-    __typename: "User",
-    id?: string | null,
-    name?: string | null,
-    avatarUrl?: string | null,
-    friends?:  Array< {
-      __typename: "Friend",
-      id: string,
-      status: FriendStatus,
-    } | null > | null,
-  } | null > | null,
+  suggestFriend?: Array< string | null > | null,
 };
 
 export type OnFriendRequestedSubscriptionVariables = {
