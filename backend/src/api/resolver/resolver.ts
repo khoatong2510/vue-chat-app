@@ -1,8 +1,8 @@
 import { Context, util } from "@aws-appsync/utils"
 
-
 const request = (ctx: Context) => {
   const { source, args, identity } = ctx
+  console.log('request ctx', ctx)
   return {
     operation: 'Invoke',
     payload: {
@@ -17,10 +17,8 @@ const request = (ctx: Context) => {
 const response = (ctx: Context) => {
   // handling error here
   console.log("resolver ctx", ctx)
-  if (ctx.result.error)
+  if (ctx.result?.error?.message)
     util.error(ctx.result.error.message, "Runtime Error")
-  else if (Object.keys(ctx.result).length === 0) // empty object
-    return null
   else
     return ctx.result
 }

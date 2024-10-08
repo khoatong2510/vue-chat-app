@@ -1,10 +1,10 @@
 export enum FriendStatus {
-  REQUESTED,
-  ACCEPTED,
-  BLOCKED
+  REQUESTED = 'REQUESTED',
+  ACCEPTED = 'ACCEPTED',
+  BLOCKED = 'BLOCKED'
 }
 
-type Friend = {
+export type Friend = {
   id: string,
   status: FriendStatus
 }
