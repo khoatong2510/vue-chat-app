@@ -16,20 +16,7 @@ export type Result = {
 export type UpdateUserInput = {
   name?: string | null,
   avatarUrl?: string | null,
-  friends?: Array< FriendInput | null > | null,
 };
-
-export type FriendInput = {
-  id: string,
-  status: FriendStatus,
-};
-
-export enum FriendStatus {
-  REQUESTED = "REQUESTED",
-  ACCEPTED = "ACCEPTED",
-  BLOCKED = "BLOCKED",
-}
-
 
 export type User = {
   __typename: "User",
@@ -44,6 +31,13 @@ export type Friend = {
   id?: string,
   status?: FriendStatus,
 };
+
+export enum FriendStatus {
+  REQUESTED = "REQUESTED",
+  ACCEPTED = "ACCEPTED",
+  BLOCKED = "BLOCKED",
+}
+
 
 export type CreateUserMutationVariables = {
   input?: CreateUserInput,
@@ -129,7 +123,17 @@ export type SuggestFriendQueryVariables = {
 };
 
 export type SuggestFriendQuery = {
-  suggestFriend?: Array< string | null > | null,
+  suggestFriend?:  Array< {
+    __typename: "User",
+    id: string,
+    name?: string | null,
+    avatarUrl?: string | null,
+    friends?:  Array< {
+      __typename: "Friend",
+      id: string,
+      status: FriendStatus,
+    } | null > | null,
+  } | null > | null,
 };
 
 export type OnFriendRequestedSubscriptionVariables = {

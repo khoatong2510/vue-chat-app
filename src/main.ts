@@ -19,15 +19,13 @@ Amplify.configure({
       defaultAuthMode: 'apiKey',
       apiKey: import.meta.env.VITE_GRAPHQL_API_KEY,
     }
-  },
+  }
 })
 
 const app = createApp(App)
-
 const store = createPinia()
 
 app.use(store)
-
 app.use(router)
 
 app.mount('#app')

@@ -1,64 +1,54 @@
-import { client } from '@/graphql'
-import * as queries from '@/graphql/queries'
-import * as mutations from '@/graphql/mutations'
-import type { GraphQLResult } from 'aws-amplify/api'
 import type { Service } from './types'
+import { GET_USER, LIST_USERS, SUGGEST_FRIEND } from '@/graphql/apollo/queries'
+import { CREATE_USER, REQUEST_FRIEND } from '@/graphql/apollo/mutations'
+import { apolloClient } from '@/graphql/apollo'
 
 const listUsers = async () => {
-  const res = await client.graphql({
-    query: queries.listUsers,
-    authMode: 'userPool',
-  }) as GraphQLResult<{ listtUsers: { items: Service.User[] } }>
+  const res = await apolloClient.query({
+    query: LIST_USERS
+  })
 
   if (res.errors)
     throw res.errors
 
-  return res.data.listtUsers
+  return res.data
 }
 
-const createUser = async (input: Service.CreateUserInput) => {
-  try {
-    const res = await client.graphql({
-      authMode: "userPool",
-      query: mutations.createUser,
-      variables: {
-        input
-      }
-    }) as GraphQLResult<any>
+const createUser = async (input: Service.CreateUserInput): Promise<Service.User> => {
+  const res = await apolloClient.mutate({
+    mutation: CREATE_USER,
+    variables: {
+      input
+    }
+  })
 
-    if (res.errors)
-      throw res.errors
+  if (res.errors)
+    throw res.errors
 
-    return res
-  } catch (error) {
-    console.log("create User", error)
-  }
+  return res.data
 }
 
 const getUser = async (id: string): Promise<Service.User | null> => {
-  try {
-    const res = await client.graphql({
-      authMode: "userPool",
-      query: queries.getUser,
-      variables: {
-        id
-      }
-    }) as GraphQLResult<{ getUser: Service.User }>
-
-    return res.data.getUser
-  } catch (error) {
-    throw error
-  }
-}
-
-const suggestFriend = async (id: string) => {
-  const res = await client.graphql({
-    authMode: "userPool",
-    query: queries.suggestFriend,
+  const res = await apolloClient.query({
+    query: GET_USER,
     variables: {
       id
     }
-  }) as GraphQLResult<{ suggestFriend: Service.User[] }>
+  })
+
+  if (res.errors)
+    throw res.errors
+
+  return res.data
+}
+
+const suggestFriend = async (id: string) => {
+  const res = await apolloClient.query({
+    query: SUGGEST_FRIEND,
+    variables: {
+      id
+    }
+  })
 
   if (res.errors)
     throw res.errors
@@ -67,10 +57,22 @@ const suggestFriend = async (id: string) => {
 }
 
 const requestFriend = async (id: string) => {
-  // do something here
+  const res = await apolloClient.query({
+    query: REQUEST_FRIEND,
+    variables: {
+      id
+    }
+  })
 
+  if (res.errors)
+    throw res.errors
+
+  return res.data
 }
 
+const onFriendRequested = async () => {
+
+}
 
 export default {
   getUser,

@@ -6,4 +6,7 @@ export const onFriendRequested = /* GraphQL */ `
   subscription OnFriendRequested($from: ID!, $to: ID!) {
     onFriendRequested(from: $from, to: $to)
   }
-`;
+`  as GeneratedSubscription<
+  APITypes.OnFriendRequestedSubscriptionVariables,
+  APITypes.OnFriendRequestedSubscription
+>;

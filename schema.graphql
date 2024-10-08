@@ -10,7 +10,7 @@ enum FriendStatus {
   BLOCKED
 }
 
-type Friend {
+type Friend @aws_cognito_user_pools {
   id: ID!,
   status: FriendStatus!
 }
@@ -40,19 +40,18 @@ input CreateUserInput {
 input UpdateUserInput {
   name: String,
   avatarUrl: String
-  friends: [FriendInput]
 }
 
 type Query {
   getUser(id: ID!): User @aws_cognito_user_pools
   listUsers: [User]
-  suggestFriend(id: ID!): [ID] @aws_cognito_user_pools
+  suggestFriend(id: ID!): [User] @aws_cognito_user_pools
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): Result @aws_cognito_user_pools
-  updateUser(id: ID!, values: UpdateUserInput): User
-  deleteUser(id: ID!): ID
+  updateUser(id: ID!, values: UpdateUserInput): User @aws_cognito_user_pools
+  deleteUser(id: ID!): ID @aws_cognito_user_pools
   requestFriend(id: ID!): ID @aws_cognito_user_pools
 }
 

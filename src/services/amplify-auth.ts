@@ -26,6 +26,12 @@ const currentIdToken = async (): Promise<string | undefined> => {
   return res.tokens?.idToken?.toString()
 }
 
+const currentAccessToken = async (): Promise<string | undefined> => {
+  const res = await fetchAuthSession()
+  return res.tokens?.accessToken.toString()
+}
+
+
 const handleSignUp = async ({ username, password }: SignUpInput): Promise<string | undefined> => {
   try {
     const { isSignUpComplete, userId, nextStep } = await signUp({
@@ -33,9 +39,9 @@ const handleSignUp = async ({ username, password }: SignUpInput): Promise<string
       password
     })
 
-    console.log('isSignInComplete', isSignUpComplete)
-    console.log('userId', userId)
-    console.log('nextStep', nextStep)
+    // console.log('isSignInComplete', isSignUpComplete)
+    // console.log('userId', userId)
+    // console.log('nextStep', nextStep)
 
     return userId
   } catch (error) {
@@ -50,8 +56,8 @@ const handleSignUpConfirmation = async ({ username, confirmationCode }: ConfirmS
       confirmationCode
     })
 
-    console.log('handle confirm isSignUpComplete', isSignUpComplete)
-    console.log('handle confirm nextStep', nextStep)
+    // console.log('handle confirm isSignUpComplete', isSignUpComplete)
+    // console.log('handle confirm nextStep', nextStep)
   } catch (error) {
     console.log('error confirming sign up', error)
   }
@@ -93,6 +99,7 @@ export default {
   currentAuthUser,
   currentSession,
   currentIdToken,
+  currentAccessToken,
   handleSignUp,
   handleSignUpConfirmation,
   handleSignIn,

@@ -1,8 +1,6 @@
-/* tslint:disable */
-/* eslint-disable */
-// this is an auto generated file. This will be overwritten
+import { gql } from "@apollo/client/core"
 
-export const getUser = /* GraphQL */ `
+export const GET_USER = gql`
   query GetUser($id: ID!) {
     getUser(id: $id) {
       id
@@ -14,8 +12,9 @@ export const getUser = /* GraphQL */ `
       }
     }
   }
-`;
-export const listUsers = /* GraphQL */ `
+`
+
+export const LIST_USERS = gql`
   query ListUsers {
     listUsers {
       id
@@ -27,8 +26,9 @@ export const listUsers = /* GraphQL */ `
       }
     }
   }
-`;
-export const suggestFriend = /* GraphQL */ `
+`
+
+export const SUGGEST_FRIEND = gql`
   query SuggestFriend($id: ID!) {
     suggestFriend(id: $id) {
       id
@@ -40,4 +40,4 @@ export const suggestFriend = /* GraphQL */ `
       }
     }
   }
-`;
+`

@@ -17,6 +17,7 @@ const userName = ref<string>('')
 
 const signOut = async () => {
   try {
+    await userProfileStore.reset()
     await authStore.signOut()
 
     router.push({ name: 'login' })

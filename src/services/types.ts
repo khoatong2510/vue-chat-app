@@ -14,5 +14,4 @@ export namespace Service {
     name: string
     avatarUrl: string
   }
-
 }

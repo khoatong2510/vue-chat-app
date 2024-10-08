@@ -9,10 +9,8 @@ import ColorPalette from '@/pages/ColorPalette.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
 
-
 const validateUserSession = async (to: RouteLocation, from: RouteLocation, next: Function) => {
   const authStore = useAuthStore()
-  const userProfileStore = useUserProfileStore()
 
   await authStore.getCurrentSession()
   if (!to.meta.authRequired)
@@ -20,16 +18,40 @@ const validateUserSession = async (to: RouteLocation, from: RouteLocation, next:
 
   if (authStore.isAuth) {
     await authStore.getCurrentUser()
+
     if (!authStore.user?.userId) {
       next({ name: 'login' })
       return
     }
 
-    const userId = authStore.user?.userId
-    await userProfileStore.getUserProfile(userId)
     next()
+
   } else
     next({ name: 'login' })
+}
+
+const validateUserProfile = async (to: RouteLocation, from: RouteLocation, next: Function) => {
+  const authStore = useAuthStore()
+  const userProfileStore = useUserProfileStore()
+
+  if (to.name === "create-profile") {
+    next()
+    return
+  }
+
+  const userId = authStore.user?.userId
+  if (!userId) {
+    next({ name: 'login' })
+    return
+  }
+
+  await userProfileStore.getUserProfile(userId)
+  if (!userProfileStore.id) {
+    next({ name: 'create-profile' })
+    return
+  }
+
+  next()
 }
 
 
@@ -62,8 +84,7 @@ const router = createRouter({
           meta: {
             authRequired: true
           },
-          // component: AppEntry,
-          beforeEnter: validateUserSession,
+          beforeEnter: [validateUserSession, validateUserProfile],
           children: [
             {
               path: '/create-profile',
