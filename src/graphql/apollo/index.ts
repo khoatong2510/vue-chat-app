@@ -12,7 +12,7 @@ const authLink = setContext(async (_, { headers }) => {
     headers: {
       ...headers,
       'X-Api-Key': import.meta.env.VITE_GRAPHQL_API_KEY,
-      Authorization: token ? `Bearer ${token}` : ""
+      Authorization: token ? `${token}` : ""
     }
   }
 })
