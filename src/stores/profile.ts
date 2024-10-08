@@ -3,7 +3,6 @@ import userService from '@/services/user'
 import { type Store } from './types'
 import authService from '@/services/amplify-auth'
 import { toBase64 } from "@/utils"
-import type { User } from "@/graphql/API"
 
 interface UserProfileStoreState {
   id: string | null,
@@ -57,7 +56,7 @@ export const useUserProfileStore = defineStore('userProfile', {
       const res = await userService.suggestFriend(this.id)
       const idToken = await authService.currentIdToken()
 
-      this.suggestedFriends = await Promise.all(res.suggestFriend.map(async (friend: User) => {
+      this.suggestedFriends = await Promise.all(res.suggestFriend.map(async (friend: Store.UserProfile) => {
         const res = await fetch(`https://2v2dwfsmk4.execute-api.ap-southeast-2.amazonaws.com/dev/avatar/${friend.id}`, {
           method: 'GET',
           headers: {

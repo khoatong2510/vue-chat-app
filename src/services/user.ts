@@ -1,7 +1,7 @@
 import type { Service } from './types'
-import { GET_USER, LIST_USERS, SUGGEST_FRIEND } from '@/graphql/apollo/queries'
-import { CREATE_USER, REQUEST_FRIEND } from '@/graphql/apollo/mutations'
-import { apolloClient } from '@/graphql/apollo'
+import { GET_USER, LIST_USERS, SUGGEST_FRIEND } from '@/graphql/queries'
+import { CREATE_USER, REQUEST_FRIEND } from '@/graphql/mutations'
+import { apolloClient } from '@/graphql'
 
 const listUsers = async () => {
   const res = await apolloClient.query({

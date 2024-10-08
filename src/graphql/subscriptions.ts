@@ -1,12 +1,7 @@
-/* tslint:disable */
-/* eslint-disable */
-// this is an auto generated file. This will be overwritten
+import { gql } from "@apollo/client/core"
 
-export const onFriendRequested = /* GraphQL */ `
+export const ON_FRIEND_REQUESTED = gql`
   subscription OnFriendRequested($from: ID!, $to: ID!) {
     onFriendRequested(from: $from, to: $to)
   }
-`  as GeneratedSubscription<
-  APITypes.OnFriendRequestedSubscriptionVariables,
-  APITypes.OnFriendRequestedSubscription
->;
+`
