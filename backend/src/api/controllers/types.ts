@@ -5,7 +5,8 @@ export enum FriendStatus {
 }
 
 export type Friend = {
-  id: string,
+  id: ID,
+  sentBy: ID
   status: FriendStatus
 }
 

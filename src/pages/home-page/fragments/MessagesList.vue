@@ -4,7 +4,7 @@ import Message from './Message.vue'
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col p-4 gap-4">
+  <div class="flex-1 flex flex-col p-4 gap-4 bg-surfaceContainer">
     <div class="flex gap-2 items-end"> 
       <img 
         src="@/assets/images/785-200x200.jpg"
@@ -25,12 +25,12 @@ import Message from './Message.vue'
     <div class="self-end flex flex-col items-end gap-1 w-3/4">
       <Message 
         content="Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet"
-        bg-color="bg-gray-200"
+        bg-color="bg-tertiaryContainer"
       />
 
       <Message 
         content="Neque porro quisquam est"
-        bg-color="bg-gray-200"
+        bg-color="bg-tertiaryContainer"
       />
     </div>
   </div>

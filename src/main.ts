@@ -2,7 +2,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './index.css'
 import App from './App.vue'
-import router from './router'
+
+import filters from './filters'
+
 import { Amplify } from 'aws-amplify'
 
 Amplify.configure({
@@ -23,9 +25,11 @@ Amplify.configure({
 })
 
 const app = createApp(App)
-const store = createPinia()
 
+const store = createPinia()
 app.use(store)
+
+import router from './router'
 app.use(router)
 
 app.mount('#app')

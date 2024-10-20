@@ -1,11 +1,18 @@
+import type { ID } from "@/types"
+
 export namespace Store {
+  export interface AuthStoreState {
+    user: AuthStoreUser | null
+    hasValidSession: boolean
+  }
+
   export type AuthStoreUser = {
-    userId: string
+    userId: ID
     username: string
   }
 
   export type UserProfile = {
-    id: string
+    id: ID
     name: string
     avatarUrl: string
   }

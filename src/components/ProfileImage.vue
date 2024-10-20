@@ -10,7 +10,7 @@ const props = defineProps<ProfileImageProps>()
   <img 
     :src="props.src"
     alt="profile image"
-    class="border border-solid border-green-400 rounded-full"
+    class="border border-solid border-outline rounded-full"
     :class="`w-${props.size} h-${props.size}`"
   />
 </template>

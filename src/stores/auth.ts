@@ -3,13 +3,9 @@ import authService from '@/services/amplify-auth'
 import { type Store } from './types'
 import type { Service } from '@/services/types'
 
-interface AuthStoreState {
-  user: Store.AuthStoreUser | null
-  hasValidSession: boolean
-}
 
 export const useAuthStore = defineStore('auth', {
-  state: (): AuthStoreState => {
+  state: (): Store.AuthStoreState => {
     return {
       user: null,
       hasValidSession: false

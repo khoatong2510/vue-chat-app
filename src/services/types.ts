@@ -9,9 +9,26 @@ export namespace Service {
     avatarUrl: string
   }
 
+  export enum FriendStatus {
+    REQUESTED = 'REQUESTED',
+    ACCEPTED = 'ACCEPTED',
+    BLOCKED = 'BLOCKED'
+  }
+
+  export type Friend = {
+    id: string,
+    sentBy: string,
+    status: FriendStatus
+  }
+
   export type User = {
     id: string
     name: string
-    avatarUrl: string
+    avatarUrl: string,
+    friends: Friend[]
+  }
+
+  export type Subscription = {
+    unsubscribe: Function
   }
 }

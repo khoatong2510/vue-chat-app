@@ -27,6 +27,7 @@
     "graphql": "^16.9.0",
     "graphql-ws": "^5.16.0",
     "pinia": "^2.1.7",
+    "uuid": "^10.0.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vue3-emoji-picker": "^1.1.8"

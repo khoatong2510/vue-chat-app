@@ -7,15 +7,15 @@ import 'vue3-emoji-picker/css'
 const showEmojiPicker = ref<boolean>(false)
 
 const onSelectEmoji = (emoji: object) => {
-  console.log(emoji)
+
 }
 </script>
 
 <template>
-  <div class="flex-none flex items-center gap-2 p-4 border-t border-solid border-blue-300 bg-blue-400 bg-opacity-50">
+  <div class="flex-none flex items-center gap-2 p-4 border-t border-solid border-outlineVariant bg-surfaceContainerHigh">
     <textarea
       :rows="5"
-      class="h-9 w-full p-2 border border-solid border-orange-400 rounded-xl outline-none text-xs bg-orange-50 bg-opacity-50" 
+      class="h-9 w-full p-2 border border-solid border-outlineVariant rounded-xl outline-none text-xs bg-surfaceContainerLowest bg-opacity-50" 
     />
 
     <div>
@@ -27,7 +27,7 @@ const onSelectEmoji = (emoji: object) => {
       />
 
       <FaceSmileIcon 
-        class="w-7 h-7 text-orange-600 hover:text-orange-700 duration-100 cursor-pointer"
+        class="w-7 h-7 text-onPrimaryContainer hover:text-onPrimaryFixed duration-100 cursor-pointer"
         @click="showEmojiPicker = !showEmojiPicker"
       />
     </div>

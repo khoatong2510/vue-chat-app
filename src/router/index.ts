@@ -46,10 +46,13 @@ const validateUserProfile = async (to: RouteLocation, from: RouteLocation, next:
   }
 
   await userProfileStore.getUserProfile(userId)
-  if (!userProfileStore.id) {
+
+  if (!userProfileStore.userProfile) {
     next({ name: 'create-profile' })
     return
   }
+
+  userProfileStore.listenFriendRequest()
 
   next()
 }

@@ -5,7 +5,7 @@ interface MessageProps {
 }
 
 const props = withDefaults(defineProps<MessageProps>(), {
-  bgColor: 'bg-orange-200'
+  bgColor: 'bg-secondaryContainer'
 })
 </script>
 

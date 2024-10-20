@@ -12,6 +12,7 @@ enum FriendStatus {
 
 type Friend @aws_cognito_user_pools {
   id: ID!,
+  sentBy: ID!,
   status: FriendStatus!
 }
 
@@ -42,6 +43,11 @@ input UpdateUserInput {
   avatarUrl: String
 }
 
+type FriendRequestOutput @aws_cognito_user_pools {
+  from: ID
+  to: ID
+}
+
 type Query {
   getUser(id: ID!): User @aws_cognito_user_pools
   listUsers: [User]
@@ -52,9 +58,12 @@ type Mutation {
   createUser(input: CreateUserInput!): Result @aws_cognito_user_pools
   updateUser(id: ID!, values: UpdateUserInput): User @aws_cognito_user_pools
   deleteUser(id: ID!): ID @aws_cognito_user_pools
-  requestFriend(id: ID!): ID @aws_cognito_user_pools
+  requestFriend(id: ID!): FriendRequestOutput @aws_cognito_user_pools
+  acceptFriend(id: ID!): Result @aws_cognito_user_pools
+  rejectFriend(id: ID!): Result @aws_cognito_user_pools
+  blockFriend(id: ID!): Result @aws_cognito_user_pools
 }
 
 type Subscription {
-  onFriendRequested(from: ID!, to: ID!): ID @aws_subscribe(mutations: ["requestFriend"])
+  onFriendRequested(to: ID!): FriendRequestOutput @aws_cognito_user_pools  @aws_subscribe(mutations: ["requestFriend"])
 }

@@ -23,6 +23,9 @@ export const handler = async (event: AppsyncResolverEvent, context: Context): Pr
     ...UserController
   }
 
+  console.log("field", event.field)
+  console.log("args", event.argurments)
+
   if (!field)
     throw Error(`Invalid field ${field}`)
 

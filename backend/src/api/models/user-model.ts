@@ -22,7 +22,7 @@ const listUsers = ({ dynamodb, userTableName }: DbContext) => async (): Promise<
   return res.Items?.map(item => unmarshall(item)) as User[]
 }
 
-const getUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID): Promise<User | undefined> => {
+const getUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID): Promise<Model.User | undefined> => {
   const input: GetItemCommandInput = {
     TableName: userTableName,
     Key: marshall({ id })
@@ -30,7 +30,7 @@ const getUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID): Prom
   const command = new GetItemCommand(input)
   const res = await dynamodb.send(command)
 
-  const user = res.Item ? unmarshall(res.Item) as User : undefined
+  const user = res.Item ? unmarshall(res.Item) as Model.User : undefined
   return user
 }
 
@@ -80,20 +80,39 @@ const createUser = ({ dynamodb, userTableName }: DbContext) => async (user: User
   await dynamodb.send(command)
 }
 
-const addToFriendList = ({ dynamodb, userTableName }: DbContext) => async (userId: ID, args: Friend): Promise<ID> => {
+const initUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID): Promise<void> => {
+  try {
+    const input: UpdateItemCommandInput = {
+      TableName: userTableName,
+      Key: marshall({ id: userId }),
+      UpdateExpression: "SET friends = :defaultValue",
+      ExpressionAttributeValues: marshall({
+        ':defaultValue': {}
+      })
+    }
+
+    const command = new UpdateItemCommand(input)
+    await dynamodb.send(command)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID, friendId: ID, args: Omit<Friend, 'id'>): Promise<ID> => {
   try {
     const input: UpdateItemCommandInput = {
       TableName: userTableName,
       Key: marshall({ id: userId }),
       ExpressionAttributeNames: {
-        "#friends": "friends"
+        "#id": friendId
       },
       ExpressionAttributeValues: marshall({
-        ":friend": [args],
-        ":empty": []
+        ":value": {
+          ...args
+        }
       }),
-      UpdateExpression: "SET #friends = list_append(if_not_exists(#friends, :empty), :friend)",
-      ReturnValues: ReturnValue.UPDATED_NEW
+      UpdateExpression: "SET friends.#id = :value",
+      ReturnValues: ReturnValue.UPDATED_NEW,
     }
 
     const command = new UpdateItemCommand(input)
@@ -102,16 +121,34 @@ const addToFriendList = ({ dynamodb, userTableName }: DbContext) => async (userI
     if (!res.Attributes)
       throw Error("Something wrong when updating user data")
 
-    const updatedFriends = (unmarshall(res.Attributes) as User).friends || []
+    const updatedFriends = (unmarshall(res.Attributes) as User).friends || {}
+    const updatedFriendId = Object.keys(updatedFriends).find(key => key === friendId)
 
-    const friend = updatedFriends.find(friend => friend.id === args.id && friend.status === args.status)
-
-    if (!friend)
+    if (!updatedFriendId)
       throw Error("Something wrong when updating user data")
 
-    return friend.id
+    return updatedFriendId
   } catch (error) {
-    console.log("addToFriendList", error)
+    console.log("updateUserFriend", error)
+    throw error
+  }
+}
+
+const deleteUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID, friendId: ID): Promise<void> => {
+  try {
+    const input: UpdateItemCommandInput = {
+      TableName: userTableName,
+      Key: marshall({ id: userId }),
+      ExpressionAttributeNames: {
+        "#id": friendId
+      },
+      UpdateExpression: "REMOVE friends.#id"
+    }
+
+    const command = new UpdateItemCommand(input)
+    await dynamodb.send(command)
+
+  } catch (error) {
     throw error
   }
 }
@@ -123,20 +160,11 @@ const updateUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID, ar
     let ExpressionAttributeValues: { [k: string]: AttributeValue } = {}
     let UpdateExpression = 'SET '
 
-    // console.log('args', args, Object.entries(args))
-
     for (const [key, value] of Object.entries(args)) {
-      // console.log("key", key)
-      // console.log("value", value, JSON.stringify(marshall(value), null, 2))
-
       ExpressionAttributeNames[`#${key}`] = key
       ExpressionAttributeValues[`:${key}`] = marshall(value)
       UpdateExpression += `#${key} = :${key}`
     }
-
-    // console.log('ExpressionAttributeNames', ExpressionAttributeNames)
-    // console.log('ExpressionAttributeValues', ExpressionAttributeValues)
-    // console.log('UpdateExpression', UpdateExpression)
 
     const input = {
       TableName: userTableName,
@@ -166,7 +194,9 @@ export default {
   updateUser,
   deleteUser,
   getFriendSuggestion,
-  addToFriendList
+  initUserFriend,
+  updateUserFriend,
+  deleteUserFriend
 }
 
 

@@ -31,6 +31,28 @@ export const DELETE_USER = gql`
 
 export const REQUEST_FRIEND = gql`
   mutation RequestFriend($id: ID!) {
-    requestFriend(id: $id)
+    requestFriend(id: $id) {
+      from
+      to
+    }
   }
 `
+
+export const ACCEPT_FRIEND = gql`
+  mutation AcceptFriend($id: ID!) {
+    acceptFriend(id: $id) {
+      success
+      error
+    }
+  }
+`
+
+export const REJECT_FRIEND = gql`
+  mutation RejectFriend($id: ID!) {
+    rejectFriend(id: $id) {
+      success
+      error
+    }
+  }
+`
+

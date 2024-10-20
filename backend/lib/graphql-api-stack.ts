@@ -53,7 +53,9 @@ export class GraphqlApiStack extends cdk.Stack {
       { typeName: 'Mutation', fieldName: 'deleteUser' },
       { typeName: 'Mutation', fieldName: 'updateUser' },
       { typeName: 'Mutation', fieldName: 'requestFriend' },
-
+      { typeName: 'Mutation', fieldName: 'acceptFriend' },
+      { typeName: 'Mutation', fieldName: 'rejectFriend' },
+      { typeName: 'Mutation', fieldName: 'blockFriend' }
     ]
 
     // const functionMap = userFunctions.reduce((a: Map<string, appsync.AppsyncFunction>, c: string) => {

@@ -21,11 +21,9 @@ const buttonColorCss = computed(() => {
 <template>
   <button 
     class="
-      rounded-2xl py-2
-      min-h-10
-      shadow-sm
-      hover:opacity-80 hover:shadow-md
-      active:opacity-90  active:shadow-none
+      rounded-2xl
+      hover:brightness-75 hover:shadow-sm
+      active:brightness-90 active:shadow-none
       transition-colors duration-75 ease-in 
       flex items-center justify-center
     "

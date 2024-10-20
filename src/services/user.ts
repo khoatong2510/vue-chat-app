@@ -1,10 +1,16 @@
 import type { Service } from './types'
 import { GET_USER, LIST_USERS, SUGGEST_FRIEND } from '@/graphql/queries'
-import { CREATE_USER, REQUEST_FRIEND } from '@/graphql/mutations'
+import { ACCEPT_FRIEND, CREATE_USER, REJECT_FRIEND, REQUEST_FRIEND } from '@/graphql/mutations'
 import { apolloClient } from '@/graphql'
+import { ON_FRIEND_REQUESTED } from '@/graphql/subscriptions'
+import AuthService from '@/services/amplify-auth'
+import type { FetchResult } from '@apollo/client/core'
+import type { ID } from '@/types'
 
 const listUsers = async () => {
-  const res = await apolloClient.query({
+  const client = await apolloClient()
+
+  const res = await client.query({
     query: LIST_USERS
   })
 
@@ -15,7 +21,9 @@ const listUsers = async () => {
 }
 
 const createUser = async (input: Service.CreateUserInput): Promise<Service.User> => {
-  const res = await apolloClient.mutate({
+  const client = await apolloClient()
+
+  const res = await client.mutate({
     mutation: CREATE_USER,
     variables: {
       input
@@ -29,7 +37,9 @@ const createUser = async (input: Service.CreateUserInput): Promise<Service.User>
 }
 
 const getUser = async (id: string): Promise<Service.User | null> => {
-  const res = await apolloClient.query({
+  const client = await apolloClient()
+
+  const res = await client.query({
     query: GET_USER,
     variables: {
       id
@@ -39,11 +49,13 @@ const getUser = async (id: string): Promise<Service.User | null> => {
   if (res.errors)
     throw res.errors
 
-  return res.data
+  return res.data.getUser
 }
 
 const suggestFriend = async (id: string) => {
-  const res = await apolloClient.query({
+  const client = await apolloClient()
+
+  const res = await client.query({
     query: SUGGEST_FRIEND,
     variables: {
       id
@@ -56,9 +68,11 @@ const suggestFriend = async (id: string) => {
   return res.data
 }
 
-const requestFriend = async (id: string) => {
-  const res = await apolloClient.query({
-    query: REQUEST_FRIEND,
+const requestFriend = async (id: string): Promise<ID> => {
+  const client = await apolloClient()
+
+  const res = await client.mutate({
+    mutation: REQUEST_FRIEND,
     variables: {
       id
     }
@@ -67,11 +81,67 @@ const requestFriend = async (id: string) => {
   if (res.errors)
     throw res.errors
 
-  return res.data
+  return res.data.to
 }
 
-const onFriendRequested = async () => {
+const onFriendRequested = async (
+  id: string,
+  onNext: (value: FetchResult<any>) => void
+): Promise<Service.Subscription> => {
+  const client = await apolloClient()
+  const token = await AuthService.currentIdToken()
+  const res = await client.subscribe({
+    query: ON_FRIEND_REQUESTED,
+    variables: {
+      to: id
+    },
+    extensions: {
+      authorization: {
+        host: import.meta.env.VITE_WEBSOCKET_HOST,
+        Authorization: token
+      }
+    }
+  })
 
+  const subscription = res.subscribe({
+    next: onNext,
+    error: (error) => {
+      throw error
+    }
+  })
+
+  return subscription
+}
+
+const acceptFriend = async (id: ID): Promise<void> => {
+  const client = await apolloClient()
+
+  const res = await client.mutate({
+    mutation: ACCEPT_FRIEND,
+    variables: {
+      id
+    }
+  })
+
+
+  if (res.errors)
+    throw res.errors
+
+  console.log(res)
+}
+
+const rejectFriend = async (id: ID): Promise<void> => {
+  const client = await apolloClient()
+
+  const res = await client.mutate({
+    mutation: REJECT_FRIEND,
+    variables: {
+      id
+    }
+  })
+
+  if (res.errors)
+    throw res.errors
 }
 
 export default {
@@ -79,5 +149,8 @@ export default {
   listUsers,
   createUser,
   suggestFriend,
-  requestFriend
+  requestFriend,
+  onFriendRequested,
+  acceptFriend,
+  rejectFriend
 }

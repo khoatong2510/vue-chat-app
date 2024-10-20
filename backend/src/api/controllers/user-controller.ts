@@ -1,9 +1,7 @@
-import { CreateUserArgs, FriendStatus, ID, Result, User } from "./types"
+import { CreateUserArgs, Friend, FriendStatus, ID, Result, User } from "./types"
 import { DbContext, UserContext } from "../lambda/types"
 import UserModel from "../models/user-model"
 import userModel from "../models/user-model"
-
-const USER_TABLE_NAME = "UserTable" as const
 
 const listUsers = (dbContext: DbContext, userContext: UserContext) => async (): Promise<User[]> => {
   try {
@@ -15,11 +13,26 @@ const listUsers = (dbContext: DbContext, userContext: UserContext) => async (): 
   }
 }
 
-const getUser = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: string }): Promise<User | undefined> => {
+const getUser = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<User | undefined> => {
   try {
     const user = await UserModel.getUser(dbContext)(id)
-    return user
+
+    if (!user)
+      throw Error("User not found")
+
+    let friends = Object.entries(user.friends || {}).reduce((a: Friend[], [key, values]) => {
+      return [...a, {
+        id: key,
+        ...values
+      }]
+    }, [])
+
+    return {
+      ...user,
+      friends
+    }
   } catch (error) {
+    console.error("getUser error", error)
     throw error
   }
 }
@@ -55,14 +68,14 @@ const createUser = (dbContext: DbContext, userContext: UserContext) => async (ar
   }
 }
 
-const suggestFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: string }): Promise<User[]> => {
+const suggestFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<User[]> => {
   try {
     const user = await UserModel.getUser(dbContext)(id)
 
     if (!user)
       throw Error(`User profile not found ${id}`)
 
-    const friendIds = (user.friends || []).map(f => f.id)
+    const friendIds = Object.keys(user.friends || {})
 
     const friendSuggestionIds = await UserModel.getFriendSuggestion(dbContext)(id, friendIds)
 
@@ -72,7 +85,7 @@ const suggestFriend = (dbContext: DbContext, userContext: UserContext) => async 
   }
 }
 
-const requestFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: string }): Promise<ID> => {
+const requestFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<{ from: ID, to: ID }> => {
   try {
     const userId = userContext.id
     const user = await UserModel.getUser(dbContext)(userId)
@@ -85,13 +98,16 @@ const requestFriend = (dbContext: DbContext, userContext: UserContext) => async 
     if (!friend)
       throw Error(`Requested friend profile not found ${friend}`)
 
-    const userFriends = user.friends || []
+    const userFriends = Object.keys(user.friends || {})
+
 
     if (userFriends.length > 0) {
-      const friend = userFriends.find(f => f.id === id)
+      const fid = userFriends.find(fid => fid === id)
 
-      if (friend) {
-        switch (friend.status) {
+      if (fid) {
+        const status = user.friends[fid].status
+
+        switch (status) {
           case FriendStatus.BLOCKED:
             throw Error(`User is blocked`)
           case FriendStatus.ACCEPTED:
@@ -104,23 +120,131 @@ const requestFriend = (dbContext: DbContext, userContext: UserContext) => async 
       }
     }
 
+    if (userFriends.length === 0) {
+      await userModel.initUserFriend(dbContext)(userId)
+    }
+
+    if (Object.keys(friend.friends || {}).length === 0) {
+      await userModel.initUserFriend(dbContext)(friend.id)
+    }
+
     // save record to requesting A, return result
     const requesting = {
-      id,
+      sentBy: userId,
       status: FriendStatus.REQUESTED
     }
 
-    const friendId = await userModel.addToFriendList(dbContext)(userId, requesting)
+    const friendId = await userModel.updateUserFriend(dbContext)(userId, id, requesting)
 
-    // save record to requested B
-    const requested = {
-      id: userId,
-      status: FriendStatus.REQUESTED
+    await userModel.updateUserFriend(dbContext)(id, userId, requesting)
+
+    return {
+      from: userId,
+      to: friendId
     }
 
-    await userModel.addToFriendList(dbContext)(id, requested)
+  } catch (error) {
+    throw error
+  }
+}
 
-    return friendId
+const acceptFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
+  try {
+    const userId = userContext.id
+    const friendId = id
+    const user = await userModel.getUser(dbContext)(userId)
+
+    if (!user)
+      throw Error("User not found")
+
+    if (!user.friends[friendId])
+      throw Error(`Friend not found ${friendId}`)
+
+    if (user.friends[friendId].status !== FriendStatus.REQUESTED)
+      throw Error("invalid friend status")
+
+    const sentBy = user.friends[friendId].sentBy
+
+    await Promise.all([
+      userModel.updateUserFriend(dbContext)(userId, friendId, {
+        sentBy,
+        status: FriendStatus.ACCEPTED
+      }),
+      userModel.updateUserFriend(dbContext)(friendId, userId, {
+        sentBy,
+        status: FriendStatus.ACCEPTED
+      })
+    ])
+
+    return {
+      success: true
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: JSON.stringify(error)
+    }
+  }
+}
+
+const rejectFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
+  try {
+    const userId = userContext.id
+    const friendId = id
+    const user = await userModel.getUser(dbContext)(userId)
+
+    if (!user)
+      throw Error(`User not found ${userId}`)
+
+    if (!user.friends[friendId])
+      throw Error(`Friend not found ${friendId}`)
+
+    if (user.friends[friendId].status !== FriendStatus.REQUESTED)
+      throw Error("invalid friend status")
+
+    await Promise.all([
+      userModel.deleteUserFriend(dbContext)(userId, friendId),
+      userModel.deleteUserFriend(dbContext)(friendId, userId)
+    ])
+
+    return {
+      success: true
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const blockFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
+  try {
+    const userId = userContext.id
+    const friendId = id
+
+    const user = await userModel.getUser(dbContext)(userId)
+
+    if (!user)
+      throw Error(`User not found ${userId}`)
+
+    if (!user.friends[friendId])
+      throw Error(`Friend not found ${friendId}`)
+
+
+    const sentBy = user.friends[friendId].sentBy
+    await Promise.all([
+      userModel.updateUserFriend(dbContext)(userId, id, {
+        sentBy,
+        status: FriendStatus.BLOCKED
+      }),
+      userModel.updateUserFriend(dbContext)(id, userId, {
+        sentBy,
+        status: FriendStatus.BLOCKED
+      })
+    ])
+
+    return {
+      success: true
+    }
+
   } catch (error) {
     throw error
   }
@@ -131,5 +255,8 @@ export default {
   getUser,
   createUser,
   suggestFriend,
-  requestFriend
+  requestFriend,
+  acceptFriend,
+  rejectFriend,
+  blockFriend
 }

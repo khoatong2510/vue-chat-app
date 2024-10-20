@@ -131,6 +131,7 @@ const passwordErrorMessage = computed<string | null>(() => {
 
         <Button
           type="tertiary" 
+          class="py-2"
           @click="login"
         >
           <Spinner 
