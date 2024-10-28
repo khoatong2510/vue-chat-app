@@ -23,6 +23,25 @@ type User @aws_cognito_user_pools {
   friends: [Friend]
 }
 
+type Message @aws_cognito_user_pools {
+  content: String
+  meta: String
+  sentBy: ID
+  isSeen: Boolean
+  createdAt: AWSDateTime
+}
+
+type MessagePage @aws_cognito_user_pools {
+  items: [Message]
+  cursor: String
+}
+
+type Conversation @aws_cognito_user_pools {
+  id: ID!
+  lastMessage: Message
+  messages: MessagePage
+}
+
 type Result @aws_cognito_user_pools {
   success: Boolean
   error: String 
@@ -43,27 +62,47 @@ input UpdateUserInput {
   avatarUrl: String
 }
 
+input CreateMessageInput {
+  conversationId: ID!
+  sentBy: ID
+  content: String
+  meta: String
+}
+
+input UpdateMessageInput {
+  conversationId: ID!
+  createdAt: AWSDateTime
+  sentBy: ID
+  content: String
+}
+
 type FriendRequestOutput @aws_cognito_user_pools {
   from: ID
   to: ID
 }
 
-type Query {
-  getUser(id: ID!): User @aws_cognito_user_pools
-  listUsers: [User]
-  suggestFriend(id: ID!): [User] @aws_cognito_user_pools
+type Query @aws_cognito_user_pools {
+  getUser(id: ID!): User
+  listUsers: [User] 
+  suggestFriend(id: ID!): [User]
+  listConversations(userId: ID!): [Conversation]
+  getConversation(id: ID!): Conversation
+  listMessages(conversationId: ID!): [Message]
 }
 
-type Mutation {
-  createUser(input: CreateUserInput!): Result @aws_cognito_user_pools
-  updateUser(id: ID!, values: UpdateUserInput): User @aws_cognito_user_pools
-  deleteUser(id: ID!): ID @aws_cognito_user_pools
-  requestFriend(id: ID!): FriendRequestOutput @aws_cognito_user_pools
-  acceptFriend(id: ID!): Result @aws_cognito_user_pools
-  rejectFriend(id: ID!): Result @aws_cognito_user_pools
-  blockFriend(id: ID!): Result @aws_cognito_user_pools
+type Mutation @aws_cognito_user_pools {
+  createUser(input: CreateUserInput!): Result
+  updateUser(id: ID!, values: UpdateUserInput): User
+  deleteUser(id: ID!): ID
+  requestFriend(id: ID!): FriendRequestOutput
+  acceptFriend(id: ID!): Result
+  rejectFriend(id: ID!): Result
+  blockFriend(id: ID!): Result
+  createMessage(input: CreateMessageInput!): Result 
+  updateMessage(input: UpdateMessageInput!): Result 
+  deleteMessage(conversationId: ID!, sentBy: ID!, createdAt: AWSDateTime!): Result
 }
 
-type Subscription {
-  onFriendRequested(to: ID!): FriendRequestOutput @aws_cognito_user_pools  @aws_subscribe(mutations: ["requestFriend"])
+type Subscription @aws_cognito_user_pools {
+  onFriendRequested(to: ID!): FriendRequestOutput @aws_subscribe(mutations: ["requestFriend"])
 }

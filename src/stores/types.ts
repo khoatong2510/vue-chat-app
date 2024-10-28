@@ -16,6 +16,23 @@ export namespace Store {
     name: string
     avatarUrl: string
   }
+
+  export type Message = {
+    content: string
+    createdAt: Date
+    sentBy: ID
+    seen: boolean
+  }
+
+  export type Conversation = {
+    id: ID
+    lastMessage: Message
+    messages: Message[]
+  }
+
+  export interface ConversationStoreState {
+    conversations: Conversation[]
+  }
 }
 
 

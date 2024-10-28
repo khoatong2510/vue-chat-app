@@ -2,7 +2,6 @@ import { Context, util } from "@aws-appsync/utils"
 
 const request = (ctx: Context) => {
   const { source, args, identity } = ctx
-  console.log('request ctx', ctx)
   return {
     operation: 'Invoke',
     payload: {
@@ -16,8 +15,14 @@ const request = (ctx: Context) => {
 
 const response = (ctx: Context) => {
   // handling error here
-  if (ctx.result?.error?.message)
-    util.error(ctx.result.error.message, "Runtime Error")
+  console.log("response ctx", ctx)
+  if (ctx.result?.error) {
+    const { message, name } = ctx.result.error
+    if (message && name)
+      util.error(message, name)
+    else
+      util.error("Unknown Error", "Runtime Error")
+  }
   else
     return ctx.result
 }

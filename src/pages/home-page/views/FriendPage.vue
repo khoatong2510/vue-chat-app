@@ -23,8 +23,7 @@ const onRequestFriend = async (id: string) => {
 
 const onRemove = () => {
 
-} 
-
+}
 </script>
 
 <template>

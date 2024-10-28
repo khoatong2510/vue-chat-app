@@ -95,14 +95,14 @@ const passwordErrorMessage = computed<string | null>(() => {
 
 <template>
   <div
-    class="bg-surfaceContainerLow h-2/3 shadow-lg shadow-surfaceLow rounded-3xl p-8 flex items-center justify-center"
+    class="bg-surfaceContainer shadow-lg shadow-surfaceLow rounded-3xl p-8 flex items-center justify-center"
   >
     <div class="flex flex-col gap-2 justify-center">
       <div class="font-bold text-2xl">Welcome!</div>
 
       <div>
         <a 
-          class="underline font-semibold cursor-pointer text-secondary hover:text-opacity-75" 
+          class="underline font-semibold cursor-pointer text-onPrimaryContainer hover:text-opacity-75" 
           href="/register"
         >
           Create a new account
@@ -125,12 +125,12 @@ const passwordErrorMessage = computed<string | null>(() => {
           :error="passwordErrorMessage"
         />
 
-        <a class="block w-full text-right underline cursor-pointer text-secondary hover:text-opacity-75 text-sm">
+        <a class="block w-full text-right underline cursor-pointer text-onPrimaryContainer hover:text-opacity-75 text-sm">
           Forgot Password?
         </a>
 
         <Button
-          type="tertiary" 
+          type="primary" 
           class="py-2"
           @click="login"
         >

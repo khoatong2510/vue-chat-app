@@ -11,7 +11,7 @@ export type HandlerReturnType = {
   result?: object,
   error?: {
     message: string,
-    type?: string
+    name?: string
   }
 }
 

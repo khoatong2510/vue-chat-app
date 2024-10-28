@@ -10,10 +10,12 @@ import { CheckIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/24/solid'
 import type { ID } from '@/types'
 import filters from '@/filters'
+import { useConversationStore } from '@/stores/conversation';
 
 const emit = defineEmits(['friend', 'message'])
 
 const userProfileStore = useUserProfileStore()
+const conversationStore = useConversationStore()
 const { friendRequests } = storeToRefs(userProfileStore)
 
 const isViewRequest = ref(false)
@@ -96,15 +98,6 @@ const onReject = async (id: ID) => {
           avatar-url="src/assets/images/785-200x200.jpg"
           last-message="Quis nostrum exercitationem ullam corporis suscipit" last-message-at="now" />
   
-        <Contact class="bg-slate-200 bg-opacity-50 shadow-sm" name="Amelia Ferguson"
-          avatar-url="src/assets/images/184-200x200.jpg"
-          last-message="The Harriet Series is a serif typeface family designed by Jackson Cavanaugh and released through"
-          last-message-at="8m" />
-  
-        <Contact class="bg-slate-200 bg-opacity-50 shadow-sm" name="Eva Roberts"
-          avatar-url="src/assets/images/23-200x200.jpg"
-          last-message="But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system"
-          last-message-at="10m" />
       </div>
 
       <div v-else>

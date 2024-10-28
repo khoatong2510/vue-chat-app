@@ -18,7 +18,7 @@ const getUser = (dbContext: DbContext, userContext: UserContext) => async ({ id 
     const user = await UserModel.getUser(dbContext)(id)
 
     if (!user)
-      throw Error("User not found")
+      return undefined
 
     let friends = Object.entries(user.friends || {}).reduce((a: Friend[], [key, values]) => {
       return [...a, {
@@ -32,7 +32,6 @@ const getUser = (dbContext: DbContext, userContext: UserContext) => async ({ id 
       friends
     }
   } catch (error) {
-    console.error("getUser error", error)
     throw error
   }
 }

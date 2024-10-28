@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+const emits = defineEmits(['click'])
 
 type ButtonProps = {
   type: 'primary'|'secondary'|'tertiary'
@@ -28,7 +29,7 @@ const buttonColorCss = computed(() => {
       flex items-center justify-center
     "
     :class="buttonColorCss"
-    @click="$emit('click')"
+    @click="emits('click')"
   >
     <slot />
   </button>

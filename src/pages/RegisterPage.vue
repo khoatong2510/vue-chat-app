@@ -6,9 +6,11 @@ import { required, email, helpers, minLength, sameAs } from '@vuelidate/validato
 import { hasUpperCase, hasNumber, hasSpecialCharacter } from '@/custom-validators'
 import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
+import Button from '@/components/Button.vue'
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
+
 
 
 interface RegisterPageState {
@@ -125,7 +127,7 @@ const backToLogin = () => {
 
 <template>
     <div
-      class="bg-surface h-2/3 shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4"
+      class="bg-surfaceContainer shadow-xl rounded-3xl p-8 flex items-center justify-end gap-x-4"
     >
       <div 
         v-if="!isSucceeded" 
@@ -169,18 +171,19 @@ const backToLogin = () => {
         </div>
       </div>
 
-      <div v-else class="w-1/2 flex flex-col justify-center items-center gap-y-4">
+      <div v-else class="flex flex-col justify-center items-center gap-y-4 ">
         <div class="flex justify-center items-center gap-x-2">
-          <CheckCircleIcon class="w-8 h-8 text-green-500" />
+          <CheckCircleIcon class="w-8 h-8 text-onPrimaryContainer" />
           We just sent you an email to verify account
         </div>
 
-        <button
-          class="mt-2 w-auto rounded-2xl bg-slate-600 text-white px-4 py-2 hover:bg-slate-700 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
+        <Button
+          type="primary"
+          class="px-4 py-2"
           @click="backToLogin"
         >
           Back to Login
-        </button>
+        </Button>
       </div>
     </div>
 </template>

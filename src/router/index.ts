@@ -3,8 +3,8 @@ import AppLayout from '@/pages/AppLayout.vue'
 import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import HomePage from '@/pages/home-page/HomePage.vue'
+import FriendPage from '@/pages/home-page/views/FriendPage.vue'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
-import FriendSuggestionPage from '@/pages/FriendSuggestionPage.vue'
 import ColorPalette from '@/pages/ColorPalette.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
@@ -52,6 +52,10 @@ const validateUserProfile = async (to: RouteLocation, from: RouteLocation, next:
     return
   }
 
+  if (to.name === 'app-entry') {
+    next({ name: 'home' })
+  }
+
   userProfileStore.listenFriendRequest()
 
   next()
@@ -95,14 +99,16 @@ const router = createRouter({
               component: CreateProfilePage,
             },
             {
-              path: '/friend-suggestion',
-              name: 'friend-suggestion',
-              component: FriendSuggestionPage,
-            },
-            {
               path: '/home',
               name: 'home',
-              component: HomePage
+              component: HomePage,
+              children: [
+                {
+                  path: '/friends',
+                  name: 'friend',
+                  component: FriendPage
+                }
+              ]
             }
           ]
         },

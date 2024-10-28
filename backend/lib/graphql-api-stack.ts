@@ -38,9 +38,21 @@ export class GraphqlApiStack extends cdk.Stack {
     })
 
     const userTable = new dynamodb.Table(this, 'dynamodb-user-table', {
-      tableName: 'UserTable2',
+      tableName: 'UserTable',
       partitionKey: {
         name: 'id',
+        type: dynamodb.AttributeType.STRING
+      }
+    })
+
+    const messageTable = new dynamodb.Table(this, 'dynamodb-message-table', {
+      tableName: 'MessageTable',
+      partitionKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING
+      },
+      sortKey: {
+        name: 'createdAt',
         type: dynamodb.AttributeType.STRING
       }
     })
@@ -49,66 +61,21 @@ export class GraphqlApiStack extends cdk.Stack {
       { typeName: 'Query', fieldName: 'listUsers' },
       { typeName: 'Query', fieldName: 'getUser' },
       { typeName: 'Query', fieldName: 'suggestFriend' },
+      { typeName: 'Query', fieldName: 'listConversations' },
+      { typeName: 'Query', fieldName: 'getConversation' },
+      { typeName: 'Query', fieldName: 'listMessages' },
       { typeName: 'Mutation', fieldName: 'createUser' },
       { typeName: 'Mutation', fieldName: 'deleteUser' },
       { typeName: 'Mutation', fieldName: 'updateUser' },
       { typeName: 'Mutation', fieldName: 'requestFriend' },
       { typeName: 'Mutation', fieldName: 'acceptFriend' },
       { typeName: 'Mutation', fieldName: 'rejectFriend' },
-      { typeName: 'Mutation', fieldName: 'blockFriend' }
+      { typeName: 'Mutation', fieldName: 'blockFriend' },
+      { typeName: 'Mutation', fieldName: 'createMessage' },
+      { typeName: 'Mutation', fieldName: 'updateMessage' },
+      { typeName: 'Mutation', fieldName: 'deleteMessage' }
     ]
 
-    // const functionMap = userFunctions.reduce((a: Map<string, appsync.AppsyncFunction>, c: string) => {
-    //   const func = new appsync.AppsyncFunction(this, fromCamelToKebab(`${c}-func`), {
-    //     name: `${c}Func`,
-    //     api,
-    //     dataSource: userDataSource,
-    //     code: appsync.Code.fromAsset(`${FUNCTIONS_DIR}/user/${c}.js`),
-    //     runtime: appsync.FunctionRuntime.JS_1_0_0
-    //   })
-
-    //   if (!a.get(c))
-    //     a.set(c, func)
-
-    //   return a
-    // }, new Map<string, appsync.AppsyncFunction>())
-
-    // const getPipeline = (names: string[]): appsync.AppsyncFunction[] => {
-    //   return names.map(p => {
-    //     const func = functionMap.get(p)
-
-    //     if (!func)
-    //       throw Error("function not found")
-
-    //     return func
-    //   })
-    // }
-
-    // for (const query of userResolvers.queries) {
-    //   const pipeline = getPipeline(query.pipeline)
-
-    //   new appsync.Resolver(this, fromCamelToKebab(`${query.name}-resolver`), {
-    //     api,
-    //     typeName: ResolverType.Query,
-    //     fieldName: `${query.name}`,
-    //     code: appsync.Code.fromAsset(`${RESOLVERS_DIR}/user/${query.name}.js`),
-    //     runtime: appsync.FunctionRuntime.JS_1_0_0,
-    //     pipelineConfig: pipeline
-    //   })
-    // }
-
-    // for (const mutation of userResolvers.mutations) {
-    //   const pipeline = getPipeline(mutation.pipeline)
-
-    //   new appsync.Resolver(this, fromCamelToKebab(`${mutation.name}-resolver`), {
-    //     api,
-    //     typeName: ResolverType.Mutation,
-    //     fieldName: `${mutation.name}`,
-    //     code: appsync.Code.fromAsset(`${RESOLVERS_DIR}/user/${mutation.name}.js`),
-    //     runtime: appsync.FunctionRuntime.JS_1_0_0,
-    //     pipelineConfig: pipeline
-    //   })
-    // }
 
     const lambdaRole = new iam.Role(this, 'lambda-role', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -123,7 +90,8 @@ export class GraphqlApiStack extends cdk.Stack {
         "dynamodb:Scan"
       ],
       resources: [
-        userTable.tableArn
+        userTable.tableArn,
+        messageTable.tableArn
       ]
     }))
 
@@ -150,7 +118,8 @@ export class GraphqlApiStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
       memorySize: 512,
       environment: {
-        USER_TABLE: userTable.tableName
+        USER_TABLE: userTable.tableName,
+        MESSAGE_TABLE: messageTable.tableName
       }
     })
 

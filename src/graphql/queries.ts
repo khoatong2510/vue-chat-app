@@ -42,3 +42,24 @@ export const SUGGEST_FRIEND = gql`
     }
   }
 `
+
+export const LIST_CONVERSATIONS = gql`
+  query ListConversations($userId: ID!) {
+    listConversation(userId: $userId) {
+      id
+      lastMessage {
+        content
+        sentBy
+        createdAt
+      }
+    }
+  }
+`
+
+export const GET_CONVERSATION = gql`
+  query GetConversation($idA: ID!, $idB: ID!) {
+    getConversation(idA: $idA, idB: $idB) {
+      id
+    }
+  }
+`

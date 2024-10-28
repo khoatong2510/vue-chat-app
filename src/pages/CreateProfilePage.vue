@@ -56,7 +56,7 @@ const onCreateUser = async () => {
 
     await userProfileStore.getUserProfile(userId)
 
-    router.push({ name: 'friend-suggestion' })
+    router.push({ name: 'home' })
   } catch (error) {
     throw error
   }
@@ -68,7 +68,7 @@ const onCreateUser = async () => {
   <div class="flex-none fixed w-full top-0 flex items-end justify-end p-2">
     <Button
       type="tertiary" 
-      class="w-1/12"
+      class="w-24 py-2"
       @click="signOut">
       Sign Out
     </Button>
@@ -90,17 +90,22 @@ const onCreateUser = async () => {
       <div class="flex flex-col gap-4">
         <ImageUpload v-model="uploadFile" />
 
-        <InputField v-model="userName" class="w-full" label="Profile Name" type="text" placeholder="Profile name" />
+        <InputField 
+          v-model="userName" 
+          class="w-full" 
+          label="Profile Name" 
+          type="text" 
+          placeholder="Profile name" 
+        />
 
-        <div>
-          <Button
-            class="w-full" 
-            type="primary" 
-            @click="onCreateUser"
-          >
-            Create Profile
-          </Button>
-        </div>
+        <Button
+          id="create-profile-button"
+          class="w-full py-2" 
+          type="primary" 
+          @click="onCreateUser"
+        >
+          Create Profile
+        </Button>
       </div>
     </div>
   </div>

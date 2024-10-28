@@ -3,7 +3,7 @@ import ChatHeader from './fragments/ChatHeader.vue'
 import MessageList from './fragments/MessagesList.vue'
 import MessageInput from './fragments/MessageInput.vue'
 import ContactsList from './fragments/ContactsList.vue'
-import FriendSuggestionPage from '../FriendSuggestionPage.vue'
+import FriendPage from './views/FriendPage.vue'
 import { ref } from 'vue';
 
 const isViewFriend = ref(false)
@@ -40,7 +40,7 @@ const onFriend = () => {
         </div>
 
         <div v-else class="w-full h-full flex flex-col">
-          <FriendSuggestionPage 
+          <FriendPage
             class="w-full h-full"
           />
 
