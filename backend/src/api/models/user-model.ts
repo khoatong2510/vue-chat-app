@@ -16,7 +16,7 @@ const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: st
 
   const input: QueryCommandInput = {
     TableName: chatTableName,
-    IndexName: 'reverse-index',
+    IndexName: Model.DynamoDbGSI.RERVERSE_INDEX,
     KeyConditionExpression: 'sk = :skval',
     ExpressionAttributeValues: marshall({
       ':skval': "profile"
@@ -61,6 +61,8 @@ const listFriendsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (i
   return (res.Items || []).map(toFriend)
 }
 
+
+
 const createUser = ({ dynamodb, chatTableName }: DbContext) => async (user: User, utcNow: Date): Promise<void> => {
   const input: PutItemCommandInput = {
     TableName: chatTableName,
@@ -69,13 +71,27 @@ const createUser = ({ dynamodb, chatTableName }: DbContext) => async (user: User
       sk: "profile",
       name: user.name,
       avatarUrl: user.avatarUrl,
-      createdAt: utcNow.getTime()
+      createdAt: utcNow.toISOString()
     })
   }
 
   const command = new PutItemCommand(input)
-
   await dynamodb.send(command)
+}
+
+const getFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID): Promise<Friend | undefined> => {
+  const input: GetItemCommandInput = {
+    TableName: chatTableName,
+    Key: marshall({
+      pk: `u#${userId}#friend`,
+      sk: friendId
+    })
+  }
+
+  const command = new GetItemCommand(input)
+  const res = await dynamodb.send(command)
+
+  return res.Item ? toFriend(res.Item) as Friend : undefined
 }
 
 const createFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID, status: FriendStatus, sentBy: ID): Promise<void> => {
@@ -158,6 +174,7 @@ export default {
   createUser,
   updateUser,
   deleteUser,
+  getFriend,
   createFriend,
   updateFriend,
   deleteFriend,

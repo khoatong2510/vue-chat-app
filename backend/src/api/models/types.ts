@@ -1,6 +1,10 @@
 import { Friend, FriendStatus, ID, User } from "../controllers/types";
 
 namespace Model {
+  export enum DynamoDbGSI {
+    RERVERSE_INDEX = 'reverse-index'
+  }
+
   export type UserUpdateArgs = Partial<Omit<User, 'id' | 'friends'>>
   export type FriendUpdateArgs = Partial<Omit<Friend, 'id'>>
 

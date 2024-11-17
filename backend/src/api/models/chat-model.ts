@@ -2,14 +2,39 @@ import { BatchWriteItemCommand, BatchWriteItemCommandInput, DynamoDBClient, Quer
 import { DbContext } from "../lambda/types"
 import { DYNAMODB_READ_LIMIT } from "./utils"
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
-import { ID } from "../controllers/types"
+import { Conversation, ID } from "../controllers/types"
+import Model from "./types"
 
-const listConversationsByUserId = ({ dynamodb, chatTableName }: DbContext) => {
-  // const input: QueryCommandInput = {
-  //   TableName: chatTableName,
-  //   Limit: DYNAMODB_READ_LIMIT,
-  //   KeyConditionExpression: 
-  // }
+const listConversationIdsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, cursor?: string): Promise<ID[]> => {
+  const input: QueryCommandInput = {
+    TableName: chatTableName,
+    IndexName: Model.DynamoDbGSI.RERVERSE_INDEX,
+    KeyConditionExpression: "sk = :skVal",
+    ExpressionAttributeValues: marshall({
+      ":skVal": `cm#${id}`
+    }),
+    Limit: DYNAMODB_READ_LIMIT
+  }
+
+  const command = new QueryCommand(input)
+  const res = await dynamodb.send(command)
+
+  return (res.Items || []).map(item => unmarshall(item).id)
+}
+
+const listMembersByConversationId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<ID[]> => {
+  const input: QueryCommandInput = {
+    TableName: chatTableName,
+    KeyConditionExpression: "pk = :pkVal",
+    ExpressionAttributeValues: marshall({
+      ":pkVal": `c#${id}`
+    })
+  }
+
+  const command = new QueryCommand(input)
+  const res = await dynamodb.send(command)
+
+  return (res.Items || []).map(item => unmarshall(item).id)
 }
 
 const listMessagesByConversationId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID) => {
@@ -25,13 +50,13 @@ const listMessagesByConversationId = ({ dynamodb, chatTableName }: DbContext) =>
   // return res.Items?.map(item => unmarshall(item) as Model.Message[])
 }
 
-const createConversation = ({ dynamodb, chatTableName }: DbContext) => async (conversationId: ID, userIds: ID[], timestamp: Date) => {
+const createConversation = ({ dynamodb, chatTableName }: DbContext) => async (conversationId: ID, userIds: ID[], createdAt: Date) => {
   const putRequests = userIds.map(id => ({
     PutRequest: {
       Item: marshall({
         pk: conversationId,
-        sk: id,
-        createdAt: timestamp.toISOString()
+        sk: `cm#${id}`,
+        createdAt: createdAt.toISOString()
       })
     }
   }))
@@ -59,7 +84,8 @@ const deleteMessage = ({ dynamodb, chatTableName }: DbContext) => async (id: ID,
 }
 
 export default {
-  listConversationsByUserId,
+  listConversationIdsByUserId,
+  listMembersByConversationId,
   listMessagesByConversationId,
   createConversation,
   createMessage,

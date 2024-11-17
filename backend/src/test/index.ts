@@ -2,8 +2,8 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { fromSSO } from '@aws-sdk/credential-providers'
 import { v4 as uuid } from 'uuid'
 import userModel from '../api/models/user-model'
+import chatModel from '../api/models/chat-model'
 import { FriendStatus } from '../api/controllers/types'
-
 
 const dynamodb = new DynamoDBClient({
   region: 'ap-southeast-2',
@@ -21,8 +21,7 @@ const main = async () => {
   const r1 = await userModel.listUsers(dbContext)()
 
   const u1 = r1.items[0]
-  console.log("BEFORE UPDATE", u1)
-  // const u2 = r1.items[1]
+  const u2 = r1.items[1]
   // const u3 = r1.items[2]
   // const u4 = r1.items[3]
   // const u5 = r1.items[4]
@@ -48,10 +47,20 @@ const main = async () => {
   // console.log("AFTER UPDATE")
   // console.log(lf)
 
-  await userModel.updateUser(dbContext)(u1.id, { name: "u1 updated" })
+  // await userModel.updateUser(dbContext)(u1.id, { name: "u1 updated" })
 
-  const updatedU1 = await userModel.getUser(dbContext)(u1.id)
-  console.log("AFTER UPDATE", updatedU1)
+  // const updatedU1 = await userModel.getUser(dbContext)(u1.id)
+  // console.log("AFTER UPDATE", updatedU1)
+
+  const cId = uuid()
+  const utcNow = new Date()
+  await chatModel.createConversation(dbContext)(cId, [u1.id, u2.id], utcNow)
+
+  const u1conversations = await chatModel.listConversationIdsByUserId(dbContext)(u1.id)
+  console.log("u1 conversation", u1conversations)
+
+  const u2conversations = await chatModel.listConversationIdsByUserId(dbContext)(u2.id)
+  console.log("u2 conversation", u2conversations)
 
 }
 

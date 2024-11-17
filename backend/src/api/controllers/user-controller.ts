@@ -70,15 +70,29 @@ const suggestFriend = (dbContext: DbContext, userContext: UserContext) => async 
 
 const requestFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<{ from: ID, to: ID }> => {
   const userId = userContext.id
+  const friendId = id
+
   const user = await userModel.getUser(dbContext)(userId)
+  const friend = await userModel.getUser(dbContext)(friendId)
 
   if (!user)
     throw Error(`User profile not found ${userId}`)
 
-  const friend = await userModel.getUser(dbContext)(id)
-
   if (!friend)
     throw Error(`Requested friend profile not found ${friend}`)
+
+  // check if they have already been friend
+  const [fr1, fr2] = await Promise.all([
+    userModel.getFriend(dbContext)(userId, friendId),
+    userModel.getFriend(dbContext)(friendId, userId)
+  ])
+
+  if (fr1 || fr2)
+    throw Error(`Users are already friends ${userId}, ${friendId}`)
+
+  // check if they have 1-1 conversation together
+  const cIdsA = await chatModel.listConversationIdsByUserId(dbContext)(userId)
+
 
   await userModel.createFriend(dbContext)(userId, id, FriendStatus.REQUESTED, userId)
   await userModel.createFriend(dbContext)(id, userId, FriendStatus.REQUESTED, userId)
@@ -89,86 +103,107 @@ const requestFriend = (dbContext: DbContext, userContext: UserContext) => async 
   }
 }
 
-const acceptFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
+const acceptFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<{ from: ID, to: ID }> => {
   const utcNow = new Date()
   const userId = userContext.id
   const friendId = id
+
   const user = await userModel.getUser(dbContext)(userId)
+  const friend = await userModel.getUser(dbContext)(friendId)
 
   if (!user)
-    throw Error("User not found")
+    throw Error(`User not found ${userId}`)
 
-  await userModel.updateFriend(dbContext)(userId, friendId, { status: FriendStatus.ACCEPTED })
-  await userModel.updateFriend(dbContext)(friendId, userId, { status: FriendStatus.ACCEPTED })
+  if (!friend)
+    throw Error(`Friend not found ${friendId}`)
+
+  const [fr1, fr2] = await Promise.all([
+    userModel.getFriend(dbContext)(userId, friendId),
+    userModel.getFriend(dbContext)(friendId, userId)
+  ])
+
+  if (!fr1 || !fr2)
+    throw Error(`Friend request not found between users: ${userId}, ${friendId}`)
+
+  if (fr1.status !== FriendStatus.REQUESTED || fr2.status !== FriendStatus.REQUESTED)
+    throw Error(`Invalid Friend status`)
+
+  await Promise.all([
+    userModel.updateFriend(dbContext)(userId, friendId, { status: FriendStatus.ACCEPTED }),
+    userModel.updateFriend(dbContext)(friendId, userId, { status: FriendStatus.ACCEPTED })
+  ])
 
   const conversationId = uuidv4()
   await chatModel.createConversation(dbContext)(conversationId, [userId, friendId], utcNow)
 
   return {
-    success: true
+    from: userId,
+    to: friendId
   }
 }
 
-const rejectFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
-  try {
-    const userId = userContext.id
-    const friendId = id
-    const user = await userModel.getUser(dbContext)(userId)
+const rejectFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<{ from: ID, to: ID }> => {
+  const userId = userContext.id
+  const friendId = id
 
-    if (!user)
-      throw Error(`User not found ${userId}`)
+  const user = await userModel.getUser(dbContext)(userId)
+  const friend = await userModel.getUser(dbContext)(friendId)
 
-    if (!user.friends[friendId])
-      throw Error(`Friend not found ${friendId}`)
+  if (!user)
+    throw Error(`User not found ${userId}`)
 
-    if (user.friends[friendId].status !== FriendStatus.REQUESTED)
-      throw Error("invalid friend status")
+  if (!friend)
+    throw Error(`User not found ${friendId}`)
 
-    await Promise.all([
-      userModel.deleteUserFriend(dbContext)(userId, friendId),
-      userModel.deleteUserFriend(dbContext)(friendId, userId)
-    ])
+  const friendRequestA = await userModel.getFriend(dbContext)(userId, friendId)
+  const friendRequestB = await userModel.getFriend(dbContext)(friendId, userId)
 
-    return {
-      success: true
-    }
-  } catch (error) {
-    throw error
+  if (!friendRequestA || !friendRequestB)
+    throw Error(`Friend request not found between users: ${userId}, ${friendId}`)
+
+  if (friendRequestA.status !== FriendStatus.REQUESTED || friendRequestB.status !== FriendStatus.REQUESTED)
+    throw Error("Invalid friend status")
+
+  await Promise.all([
+    userModel.deleteFriend(dbContext)(userId, friendId),
+    userModel.deleteFriend(dbContext)(friendId, userId)
+  ])
+
+  return {
+    from: userId,
+    to: friendId
   }
 }
 
 const blockFriend = (dbContext: DbContext, userContext: UserContext) => async ({ id }: { id: ID }): Promise<Result> => {
-  try {
-    const userId = userContext.id
-    const friendId = id
+  const userId = userContext.id
+  const friendId = id
 
-    const user = await userModel.getUser(dbContext)(userId)
+  const user = await userModel.getUser(dbContext)(userId)
+  const friend = await userModel.getUser(dbContext)(friendId)
 
-    if (!user)
-      throw Error(`User not found ${userId}`)
+  if (!user)
+    throw Error(`User not found ${userId}`)
 
-    if (!user.friends[friendId])
-      throw Error(`Friend not found ${friendId}`)
+  if (!friend)
+    throw Error(`User not found ${friendId}`)
 
+  const friendDataA = await userModel.getFriend(dbContext)(userId, friendId)
+  const friendDataB = await userModel.getFriend(dbContext)(friendId, userId)
 
-    const sentBy = user.friends[friendId].sentBy
-    await Promise.all([
-      userModel.updateUserFriend(dbContext)(userId, id, {
-        sentBy,
-        status: FriendStatus.BLOCKED
-      }),
-      userModel.updateUserFriend(dbContext)(id, userId, {
-        sentBy,
-        status: FriendStatus.BLOCKED
-      })
-    ])
+  if (!friendDataA || !friendDataB)
+    throw Error(`Friend request not found between users: ${userId}, ${friendId}`)
 
-    return {
-      success: true
-    }
+  if (friendDataA.status !== FriendStatus.REQUESTED || friendDataB.status !== FriendStatus.REQUESTED)
+    throw Error("Invalid friend status")
 
-  } catch (error) {
-    throw error
+  await Promise.all([
+    userModel.updateFriend(dbContext)(userId, id, { status: FriendStatus.BLOCKED }),
+    userModel.updateFriend(dbContext)(id, userId, { status: FriendStatus.BLOCKED })
+  ])
+
+  return {
+    success: true
   }
 }
 
