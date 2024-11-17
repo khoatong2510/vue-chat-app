@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { defineModel } from 'vue'
-
 interface InputFieldProps {
   label?: string
   error?: string | null
@@ -27,8 +25,8 @@ const model = defineModel({ required: true })
       :type="props.type"
       :placeholder="props.placeholder"
       class="
-        w-full p-2 mt-1 rounded-md text-onTertiaryContainer placeholder:text-onTertiaryContainer placeholder:text-opacity-50
-        border border-solid border-outlineVariant bg-tertiaryContainer
+        w-full p-2 mt-1 rounded-md text-onSecondaryContainer placeholder:text-onSecondaryContainer placeholder:text-opacity-50
+        border border-solid border-outlineVariant bg-secondaryContainer
         focus:outline-none focus:border-outline focus:shadow-sm focus:bg-opacity-80
       "
       :class="props.error ? 'border-error' : 'border-outlineVariant'"

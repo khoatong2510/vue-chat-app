@@ -18,14 +18,13 @@ const listConversations = async (id: ID) => {
   return res.data.listConversations
 }
 
-const getConversation = async (idA: ID, idB: ID) => {
+const getConversation = async (conversationId: ID) => {
   const client = await apolloClient()
 
   const res = await client.query({
     query: GET_CONVERSATION,
     variables: {
-      idA,
-      idB
+      id: conversationId
     }
   })
 
@@ -35,7 +34,7 @@ const getConversation = async (idA: ID, idB: ID) => {
   return res.data.getConversation
 }
 
-export {
+export default {
   listConversations,
   getConversation
 }

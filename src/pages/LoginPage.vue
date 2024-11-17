@@ -102,7 +102,7 @@ const passwordErrorMessage = computed<string | null>(() => {
 
       <div>
         <a 
-          class="underline font-semibold cursor-pointer text-onPrimaryContainer hover:text-opacity-75" 
+          class="underline font-semibold cursor-pointer text-primary hover:text-opacity-75" 
           href="/register"
         >
           Create a new account

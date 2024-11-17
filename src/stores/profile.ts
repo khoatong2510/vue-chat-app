@@ -7,6 +7,7 @@ import { Service } from '@/services/types'
 import avatarService from '@/services/avatar'
 import type { FetchResult } from "@apollo/client"
 import type { ID } from "@/types"
+import { useConversationStore } from "./conversation"
 
 interface UserProfileStoreState {
   userProfile: Store.UserProfile | null
@@ -33,7 +34,9 @@ export const useUserProfileStore = defineStore('userProfile', {
   },
   actions: {
     async getUserProfile(userId: string): Promise<void> {
+      console.log(userId)
       const userProfile = await userService.getUser(userId)
+      console.log(userProfile)
 
       if (!userProfile)
         return
@@ -84,6 +87,9 @@ export const useUserProfileStore = defineStore('userProfile', {
           avatarUrl: url
         }
       }))
+
+      console.log("suggested friends", this.suggestedFriends)
+
     },
     async requestFriend(id: string): Promise<void> {
       await userService.requestFriend(id)
@@ -118,7 +124,6 @@ export const useUserProfileStore = defineStore('userProfile', {
       const { from } = value.data.onFriendRequested
       const requestedUser = await userService.getUser(from)
       const idToken = await authService.currentIdToken()
-
 
       if (!requestedUser)
         throw Error("Requested User not found")

@@ -5,7 +5,8 @@ export enum FriendStatus {
 }
 
 export type Friend = {
-  id: ID,
+  id: ID
+  // userId: ID
   sentBy: ID
   status: FriendStatus
 }
@@ -25,6 +26,18 @@ export type CreateUserArgs = {
 export type Result = {
   success: boolean
   error?: string
+}
+
+export type Message = {
+  conversationId: ID
+  createdAt: Date
+  sentBy: ID
+  content: string
+}
+
+export type Conversation = {
+  id: ID
+  lastMessage: Message
 }
 
 export type ID = string

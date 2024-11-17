@@ -21,7 +21,7 @@ export type Controller = {
 
 export type DbContext = {
   dynamodb: DynamoDBClient
-  userTableName: string
+  chatTableName: string
 }
 
 export type UserContext = {

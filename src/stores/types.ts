@@ -26,8 +26,10 @@ export namespace Store {
 
   export type Conversation = {
     id: ID
-    lastMessage: Message
-    messages: Message[]
+    avatarUrl: string
+    lastMessage: Message | null
+    messages: Message[] | null
+    createdAt: Date
   }
 
   export interface ConversationStoreState {

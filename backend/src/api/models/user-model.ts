@@ -2,189 +2,154 @@
 
 import { DbContext } from "../lambda/types"
 import { Friend, FriendStatus, ID, User } from "../controllers/types"
-import { ScanCommand, GetItemCommand, QueryCommand, AttributeValue, Select, PutItemCommand, QueryCommandInput, GetItemCommandInput, ScanCommandInput, UpdateItemCommand, ReturnValue, UpdateItemCommandInput } from "@aws-sdk/client-dynamodb"
+import { ScanCommand, GetItemCommand, QueryCommand, AttributeValue, Select, PutItemCommand, QueryCommandInput, GetItemCommandInput, ScanCommandInput, UpdateItemCommand, ReturnValue, UpdateItemCommandInput, PutItemCommandInput, DeleteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb"
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
 import Model from './types'
+import { DYNAMODB_READ_LIMIT, toFriend, toUpdateExpression, toUser } from "./utils"
 
-const DYNAMODB_READ_LIMIT = 200
-
-const listUsers = ({ dynamodb, userTableName }: DbContext) => async (): Promise<User[]> => {
-  // TODO: handling paging
-  const input = {
-    TableName: userTableName,
-    Limit: DYNAMODB_READ_LIMIT
+const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: string): Promise<Model.CursorPaged<Pick<User, "id" | "name" | "avatarUrl">>> => {
+  let lastKey, json
+  if (cursor) {
+    lastKey = Buffer.from(cursor, 'base64').toString('ascii')
+    json = JSON.parse(lastKey)
   }
 
-  const command = new ScanCommand(input)
+  const input: QueryCommandInput = {
+    TableName: chatTableName,
+    IndexName: 'reverse-index',
+    KeyConditionExpression: 'sk = :skval',
+    ExpressionAttributeValues: marshall({
+      ':skval': "profile"
+    }),
+    Limit: DYNAMODB_READ_LIMIT,
+    ExclusiveStartKey: cursor ? json : undefined,
+  }
 
+  const command = new QueryCommand(input)
   const res = await dynamodb.send(command)
 
-  return res.Items?.map(item => unmarshall(item)) as User[]
+  return {
+    items: res.Items ? res.Items.map(toUser) : [],
+    cursor: res.LastEvaluatedKey ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64') : undefined
+  }
 }
 
-const getUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID): Promise<Model.User | undefined> => {
+const getUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<Pick<Model.User, "id" | "name" | "avatarUrl"> | undefined> => {
   const input: GetItemCommandInput = {
-    TableName: userTableName,
-    Key: marshall({ id })
+    TableName: chatTableName,
+    Key: marshall({ pk: `u#${id}`, sk: 'profile' })
   }
   const command = new GetItemCommand(input)
   const res = await dynamodb.send(command)
 
-  const user = res.Item ? unmarshall(res.Item) as Model.User : undefined
+  const user = res.Item ? toUser(res.Item) : undefined
   return user
 }
 
-const getFriendSuggestion = ({ dynamodb, userTableName }: DbContext) => async (id: ID, friendIds: ID[]): Promise<User[]> => {
-  try {
-    const ids = [id, ...friendIds]
-    const idsExpr = ids.map((_, index) => `:id${index}`).join(',')
-
-    const idsAttrValues = ids.reduce((a, c, i) => {
-      const key = `:id${i}`
-      a[key] = marshall(c)
-      return a
-    }, {} as { [key: string]: AttributeValue })
-
-    const input: ScanCommandInput = {
-      TableName: userTableName,
-      ExpressionAttributeNames: {
-        '#id': 'id',
-        '#name': 'name',
-        '#avatarUrl': 'avatarUrl'
-      },
-      ExpressionAttributeValues: {
-        ...idsAttrValues
-      },
-      FilterExpression: `NOT #id IN (${idsExpr})`,
-      ProjectionExpression: "#id, #name, #avatarUrl",
-      Limit: 10,
-    }
-
-    const command = new ScanCommand(input)
-    const friendRes = await dynamodb.send(command)
-
-    return friendRes.Items?.map(item => unmarshall(item)) as User[]
-  } catch (error) {
-    console.log("getFriendSuggestion", error)
-    throw error
+const listFriendsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<Friend[]> => {
+  const input: QueryCommandInput = {
+    TableName: chatTableName,
+    KeyConditionExpression: `pk = :partitionKeyVal`,
+    ExpressionAttributeValues: marshall({
+      ":partitionKeyVal": `u#${id}#friend`
+    })
   }
+
+  const command = new QueryCommand(input)
+  const res = await dynamodb.send(command)
+
+  return (res.Items || []).map(toFriend)
 }
 
-const createUser = ({ dynamodb, userTableName }: DbContext) => async (user: User): Promise<void> => {
-  const input = {
-    TableName: userTableName,
-    Item: marshall(user)
+const createUser = ({ dynamodb, chatTableName }: DbContext) => async (user: User, utcNow: Date): Promise<void> => {
+  const input: PutItemCommandInput = {
+    TableName: chatTableName,
+    Item: marshall({
+      pk: `u#${user.id}`,
+      sk: "profile",
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      createdAt: utcNow.getTime()
+    })
   }
+
   const command = new PutItemCommand(input)
 
   await dynamodb.send(command)
 }
 
-const initUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID): Promise<void> => {
-  try {
-    const input: UpdateItemCommandInput = {
-      TableName: userTableName,
-      Key: marshall({ id: userId }),
-      UpdateExpression: "SET friends = :defaultValue",
-      ExpressionAttributeValues: marshall({
-        ':defaultValue': {}
-      })
-    }
-
-    const command = new UpdateItemCommand(input)
-    await dynamodb.send(command)
-  } catch (error) {
-    throw error
+const createFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID, status: FriendStatus, sentBy: ID): Promise<void> => {
+  const input: PutItemCommandInput = {
+    TableName: chatTableName,
+    Item: marshall({
+      pk: `u#${userId}#friend`,
+      sk: friendId,
+      status,
+      sentBy
+    })
   }
+
+  const command = new PutItemCommand(input)
+  await dynamodb.send(command)
 }
 
-const updateUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID, friendId: ID, args: Omit<Friend, 'id'>): Promise<ID> => {
-  try {
-    const input: UpdateItemCommandInput = {
-      TableName: userTableName,
-      Key: marshall({ id: userId }),
-      ExpressionAttributeNames: {
-        "#id": friendId
-      },
-      ExpressionAttributeValues: marshall({
-        ":value": {
-          ...args
-        }
-      }),
-      UpdateExpression: "SET friends.#id = :value",
-      ReturnValues: ReturnValue.UPDATED_NEW,
-    }
+const updateFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID, args: Model.FriendUpdateArgs): Promise<void> => {
+  const updateExpression = toUpdateExpression(args)
 
-    const command = new UpdateItemCommand(input)
-    const res = await dynamodb.send(command)
-
-    if (!res.Attributes)
-      throw Error("Something wrong when updating user data")
-
-    const updatedFriends = (unmarshall(res.Attributes) as User).friends || {}
-    const updatedFriendId = Object.keys(updatedFriends).find(key => key === friendId)
-
-    if (!updatedFriendId)
-      throw Error("Something wrong when updating user data")
-
-    return updatedFriendId
-  } catch (error) {
-    console.log("updateUserFriend", error)
-    throw error
+  const input: UpdateItemCommandInput = {
+    TableName: chatTableName,
+    Key: marshall({
+      pk: `u#${userId}#friend`,
+      sk: friendId,
+    }),
+    ...updateExpression
   }
+
+  const command = new UpdateItemCommand(input)
+  await dynamodb.send(command)
 }
 
-const deleteUserFriend = ({ dynamodb, userTableName }: DbContext) => async (userId: ID, friendId: ID): Promise<void> => {
-  try {
-    const input: UpdateItemCommandInput = {
-      TableName: userTableName,
-      Key: marshall({ id: userId }),
-      ExpressionAttributeNames: {
-        "#id": friendId
-      },
-      UpdateExpression: "REMOVE friends.#id"
-    }
-
-    const command = new UpdateItemCommand(input)
-    await dynamodb.send(command)
-
-  } catch (error) {
-    throw error
+const deleteFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID): Promise<void> => {
+  const input: DeleteItemCommandInput = {
+    TableName: chatTableName,
+    Key: marshall({
+      pk: `u#${userId}#friend`,
+      sk: friendId
+    })
   }
+
+  const command = new DeleteItemCommand(input)
+  await dynamodb.send(command)
 }
 
-const updateUser = ({ dynamodb, userTableName }: DbContext) => async (id: ID, args: Model.UserUpdateArgs): Promise<void> => {
-  try {
-    // construct attributes names
-    let ExpressionAttributeNames: { [k: string]: string } = {}
-    let ExpressionAttributeValues: { [k: string]: AttributeValue } = {}
-    let UpdateExpression = 'SET '
+const updateUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, args: Model.UserUpdateArgs): Promise<void> => {
+  // construct attributes names
+  const updateExpression = toUpdateExpression(args)
 
-    for (const [key, value] of Object.entries(args)) {
-      ExpressionAttributeNames[`#${key}`] = key
-      ExpressionAttributeValues[`:${key}`] = marshall(value)
-      UpdateExpression += `#${key} = :${key}`
-    }
-
-    const input = {
-      TableName: userTableName,
-      Key: marshall({ id }),
-      ExpressionAttributeNames,
-      ExpressionAttributeValues,
-      UpdateExpression,
-      ReturnValues: ReturnValue.NONE
-    }
-
-    const command = new UpdateItemCommand(input)
-    await dynamodb.send(command)
-  } catch (error) {
-    console.log("updateUser error", error)
-    throw error
+  const input = {
+    TableName: chatTableName,
+    Key: marshall({
+      pk: `u#${id}`,
+      sk: 'profile'
+    }),
+    ...updateExpression
   }
+
+  const command = new UpdateItemCommand(input)
+  await dynamodb.send(command)
 }
 
-const deleteUser = () => {
+const deleteUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<void> => {
+  const input: DeleteItemCommandInput = {
+    TableName: chatTableName,
+    Key: marshall({
+      pk: `u#${id}`,
+      sk: 'profile'
+    })
+  }
 
+  const command = new DeleteItemCommand(input)
+  await dynamodb.send(command)
 }
 
 export default {
@@ -193,10 +158,10 @@ export default {
   createUser,
   updateUser,
   deleteUser,
-  getFriendSuggestion,
-  initUserFriend,
-  updateUserFriend,
-  deleteUserFriend
+  createFriend,
+  updateFriend,
+  deleteFriend,
+  listFriendsByUserId
 }
 
 

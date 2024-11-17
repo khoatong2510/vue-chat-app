@@ -57,8 +57,8 @@ export const LIST_CONVERSATIONS = gql`
 `
 
 export const GET_CONVERSATION = gql`
-  query GetConversation($idA: ID!, $idB: ID!) {
-    getConversation(idA: $idA, idB: $idB) {
+  query GetConversation($id: ID!) {
+    getConversation(id: $id) {
       id
     }
   }

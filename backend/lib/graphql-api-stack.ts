@@ -37,33 +37,43 @@ export class GraphqlApiStack extends cdk.Stack {
       }
     })
 
-    const userTable = new dynamodb.Table(this, 'dynamodb-user-table', {
-      tableName: 'UserTable',
+    const chatTable = new dynamodb.Table(this, 'dynamodb-chat-table', {
+      tableName: 'ChatTable',
       partitionKey: {
-        name: 'id',
+        name: 'pk',
+        type: dynamodb.AttributeType.STRING
+      },
+      sortKey: {
+        name: 'sk',
         type: dynamodb.AttributeType.STRING
       }
     })
 
-    const messageTable = new dynamodb.Table(this, 'dynamodb-message-table', {
-      tableName: 'MessageTable',
+    chatTable.addLocalSecondaryIndex({
+      indexName: 'message-by-timestamp-lsi',
+      sortKey: {
+        name: 'timestamp',
+        type: dynamodb.AttributeType.NUMBER
+      }
+    })
+
+    chatTable.addGlobalSecondaryIndex({
+      indexName: 'reverse-index',
       partitionKey: {
-        name: 'id',
+        name: 'sk',
         type: dynamodb.AttributeType.STRING
       },
       sortKey: {
-        name: 'createdAt',
+        name: 'pk',
         type: dynamodb.AttributeType.STRING
       }
     })
 
     const fields = [
-      { typeName: 'Query', fieldName: 'listUsers' },
       { typeName: 'Query', fieldName: 'getUser' },
       { typeName: 'Query', fieldName: 'suggestFriend' },
       { typeName: 'Query', fieldName: 'listConversations' },
       { typeName: 'Query', fieldName: 'getConversation' },
-      { typeName: 'Query', fieldName: 'listMessages' },
       { typeName: 'Mutation', fieldName: 'createUser' },
       { typeName: 'Mutation', fieldName: 'deleteUser' },
       { typeName: 'Mutation', fieldName: 'updateUser' },
@@ -75,7 +85,6 @@ export class GraphqlApiStack extends cdk.Stack {
       { typeName: 'Mutation', fieldName: 'updateMessage' },
       { typeName: 'Mutation', fieldName: 'deleteMessage' }
     ]
-
 
     const lambdaRole = new iam.Role(this, 'lambda-role', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -90,8 +99,7 @@ export class GraphqlApiStack extends cdk.Stack {
         "dynamodb:Scan"
       ],
       resources: [
-        userTable.tableArn,
-        messageTable.tableArn
+        chatTable.tableArn
       ]
     }))
 
@@ -108,7 +116,6 @@ export class GraphqlApiStack extends cdk.Stack {
       ]
     }))
 
-
     const lambdaFunction = new lambda.Function(this, 'resolver-lambda-function', {
       functionName: "ResolverLambda",
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -118,8 +125,7 @@ export class GraphqlApiStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
       memorySize: 512,
       environment: {
-        USER_TABLE: userTable.tableName,
-        MESSAGE_TABLE: messageTable.tableName
+        CHAT_TABLE: chatTable.tableName
       }
     })
 

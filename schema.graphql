@@ -23,12 +23,21 @@ type User @aws_cognito_user_pools {
   friends: [Friend]
 }
 
+enum MessageContentType {
+  TEXT,
+  MEDIA,
+  REACTION
+}
+
 type Message @aws_cognito_user_pools {
-  content: String
-  meta: String
-  sentBy: ID
-  isSeen: Boolean
-  createdAt: AWSDateTime
+  id: ID
+  conversationId: ID
+  content: String!
+  contentType: MessageContentType!
+  sentBy: ID!
+  replyTo: ID
+  timestamp: AWSDateTime
+  seenBy: [ID]
 }
 
 type MessagePage @aws_cognito_user_pools {
@@ -76,26 +85,24 @@ input UpdateMessageInput {
   content: String
 }
 
-type FriendRequestOutput @aws_cognito_user_pools {
+type FriendEventOutput @aws_cognito_user_pools {
   from: ID
   to: ID
 }
 
 type Query @aws_cognito_user_pools {
   getUser(id: ID!): User
-  listUsers: [User] 
   suggestFriend(id: ID!): [User]
   listConversations(userId: ID!): [Conversation]
-  getConversation(id: ID!): Conversation
-  listMessages(conversationId: ID!): [Message]
+  getConversation(conversationId: ID!): Conversation
 }
 
 type Mutation @aws_cognito_user_pools {
   createUser(input: CreateUserInput!): Result
   updateUser(id: ID!, values: UpdateUserInput): User
   deleteUser(id: ID!): ID
-  requestFriend(id: ID!): FriendRequestOutput
-  acceptFriend(id: ID!): Result
+  requestFriend(id: ID!): FriendEventOutput
+  acceptFriend(id: ID!): FriendEventOutput
   rejectFriend(id: ID!): Result
   blockFriend(id: ID!): Result
   createMessage(input: CreateMessageInput!): Result 
@@ -104,5 +111,6 @@ type Mutation @aws_cognito_user_pools {
 }
 
 type Subscription @aws_cognito_user_pools {
-  onFriendRequested(to: ID!): FriendRequestOutput @aws_subscribe(mutations: ["requestFriend"])
+  onFriendRequested(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["requestFriend"])
+  onFriendAccepted(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["acceptFriend"])
 }

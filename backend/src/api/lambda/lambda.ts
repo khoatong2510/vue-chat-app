@@ -1,14 +1,15 @@
 import { Context } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import UserController from '../controllers/user-controller'
+import ChatController from '../controllers/chat-controller'
 import { AppsyncResolverEvent, DbContext, HandlerReturnType, Controller } from './types'
 
-if (!process.env.USER_TABLE)
-  throw Error("USER_TABLE value is not set")
+if (!process.env.CHAT_TABLE)
+  throw Error("CHAT_TABLE value is not set")
 
 const dbContext: DbContext = {
   dynamodb: new DynamoDBClient(),
-  userTableName: process.env.USER_TABLE
+  chatTableName: process.env.CHAT_TABLE
 }
 
 export const handler = async (event: AppsyncResolverEvent, context: Context): Promise<HandlerReturnType> => {
@@ -20,14 +21,14 @@ export const handler = async (event: AppsyncResolverEvent, context: Context): Pr
   const args = event.argurments
 
   const controllers: Controller = {
-    ...UserController
+    ...UserController,
+    ...ChatController
   }
-
 
   if (!field)
     throw Error(`Invalid field ${field}`)
 
-  if (!Object.keys(UserController).includes(field))
+  if (!Object.keys(controllers).includes(field))
     throw Error(`No operator to handle ${field} resolver`)
 
   try {

@@ -4,6 +4,7 @@ import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import HomePage from '@/pages/home-page/HomePage.vue'
 import FriendPage from '@/pages/home-page/views/FriendPage.vue'
+import ChatPage from '@/pages/home-page/views/ChatPage.vue'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
 import ColorPalette from '@/pages/ColorPalette.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -107,6 +108,11 @@ const router = createRouter({
                   path: '/friends',
                   name: 'friend',
                   component: FriendPage
+                },
+                {
+                  path: '/chat/:id?',
+                  name: 'chat',
+                  component: ChatPage
                 }
               ]
             }
