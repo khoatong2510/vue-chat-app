@@ -4,6 +4,12 @@ export enum FriendStatus {
   BLOCKED = 'BLOCKED'
 }
 
+export enum MessageContentType {
+  TEXT = 'TEXT',
+  MEDIA = 'MEDIA',
+  REACTION = 'REACTION'
+}
+
 export type Friend = {
   id: ID
   // userId: ID
@@ -18,10 +24,7 @@ export type User = {
   friends?: Friend[]
 }
 
-export type CreateUserArgs = {
-  name: string
-  avatarUrl: string
-}
+export type CreateUserArgs = Pick<User, "name" | "avatarUrl">
 
 export type Result = {
   success: boolean
@@ -29,15 +32,20 @@ export type Result = {
 }
 
 export type Message = {
+  id: ID
   conversationId: ID
   createdAt: Date
+  updatedAt?: Date
   sentBy: ID
   content: string
+  contentType: MessageContentType
+  replyTo?: ID
 }
 
 export type Conversation = {
   id: ID
-  lastMessage: Message
+  lastMessage?: Message
+  members?: ID[]
 }
 
 export type ID = string

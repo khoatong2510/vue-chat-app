@@ -11,6 +11,8 @@
     "postbuild:lambda": "tar -C out/lambda -a -cvf ./zip/lambda.zip *",
     "watch": "tsc -w",
     "test": "jest",
+    "test:user": "jest /test/user.spec.ts",
+    "test:chat": "jest /test/chat.spec.ts",
     "cdk": "cdk",
     "synth": "cdk synth",
     "test:lambda": "npx ts-node src/test/index.ts",

@@ -38,7 +38,7 @@ export class GraphqlApiStack extends cdk.Stack {
     })
 
     const chatTable = new dynamodb.Table(this, 'dynamodb-chat-table', {
-      tableName: 'ChatTable',
+      tableName: 'ChatTable2',
       partitionKey: {
         name: 'pk',
         type: dynamodb.AttributeType.STRING
@@ -50,10 +50,10 @@ export class GraphqlApiStack extends cdk.Stack {
     })
 
     chatTable.addLocalSecondaryIndex({
-      indexName: 'message-by-timestamp-lsi',
+      indexName: 'message-by-createdAt-lsi',
       sortKey: {
-        name: 'timestamp',
-        type: dynamodb.AttributeType.NUMBER
+        name: 'createdAt',
+        type: dynamodb.AttributeType.STRING
       }
     })
 
@@ -74,13 +74,16 @@ export class GraphqlApiStack extends cdk.Stack {
       { typeName: 'Query', fieldName: 'suggestFriend' },
       { typeName: 'Query', fieldName: 'listConversations' },
       { typeName: 'Query', fieldName: 'getConversation' },
+
       { typeName: 'Mutation', fieldName: 'createUser' },
       { typeName: 'Mutation', fieldName: 'deleteUser' },
       { typeName: 'Mutation', fieldName: 'updateUser' },
+
       { typeName: 'Mutation', fieldName: 'requestFriend' },
       { typeName: 'Mutation', fieldName: 'acceptFriend' },
       { typeName: 'Mutation', fieldName: 'rejectFriend' },
       { typeName: 'Mutation', fieldName: 'blockFriend' },
+
       { typeName: 'Mutation', fieldName: 'createMessage' },
       { typeName: 'Mutation', fieldName: 'updateMessage' },
       { typeName: 'Mutation', fieldName: 'deleteMessage' }

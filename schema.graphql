@@ -10,6 +10,12 @@ enum FriendStatus {
   BLOCKED
 }
 
+enum MessageContentType {
+  TEXT,
+  MEDIA,
+  REACTION
+}
+
 type Friend @aws_cognito_user_pools {
   id: ID!,
   sentBy: ID!,
@@ -23,11 +29,6 @@ type User @aws_cognito_user_pools {
   friends: [Friend]
 }
 
-enum MessageContentType {
-  TEXT,
-  MEDIA,
-  REACTION
-}
 
 type Message @aws_cognito_user_pools {
   id: ID
@@ -36,7 +37,8 @@ type Message @aws_cognito_user_pools {
   contentType: MessageContentType!
   sentBy: ID!
   replyTo: ID
-  timestamp: AWSDateTime
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
   seenBy: [ID]
 }
 
@@ -79,10 +81,10 @@ input CreateMessageInput {
 }
 
 input UpdateMessageInput {
+  id: ID!
   conversationId: ID!
-  createdAt: AWSDateTime
-  sentBy: ID
   content: String
+  contentType: MessageContentType
 }
 
 type FriendEventOutput @aws_cognito_user_pools {
@@ -94,17 +96,22 @@ type Query @aws_cognito_user_pools {
   getUser(id: ID!): User
   suggestFriend(id: ID!): [User]
   listConversations(userId: ID!): [Conversation]
-  getConversation(conversationId: ID!): Conversation
+  getConversationMessages(conversationId: ID!): Conversation
 }
 
 type Mutation @aws_cognito_user_pools {
+  # user
   createUser(input: CreateUserInput!): Result
   updateUser(id: ID!, values: UpdateUserInput): User
   deleteUser(id: ID!): ID
+  
+  # friend
   requestFriend(id: ID!): FriendEventOutput
   acceptFriend(id: ID!): FriendEventOutput
-  rejectFriend(id: ID!): Result
-  blockFriend(id: ID!): Result
+  rejectFriend(id: ID!): FriendEventOutput
+  blockFriend(id: ID!): FriendEventOutput
+  
+  # message
   createMessage(input: CreateMessageInput!): Result 
   updateMessage(input: UpdateMessageInput!): Result 
   deleteMessage(conversationId: ID!, sentBy: ID!, createdAt: AWSDateTime!): Result
@@ -113,4 +120,6 @@ type Mutation @aws_cognito_user_pools {
 type Subscription @aws_cognito_user_pools {
   onFriendRequested(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["requestFriend"])
   onFriendAccepted(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["acceptFriend"])
+  onFriendRejected(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["rejectFriend"])
+  onFriendBlocked(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["blockFriend"])
 }

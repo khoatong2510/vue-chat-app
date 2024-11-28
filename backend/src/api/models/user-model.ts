@@ -1,13 +1,13 @@
 
 
 import { DbContext } from "../lambda/types"
-import { Friend, FriendStatus, ID, User } from "../controllers/types"
 import { ScanCommand, GetItemCommand, QueryCommand, AttributeValue, Select, PutItemCommand, QueryCommandInput, GetItemCommandInput, ScanCommandInput, UpdateItemCommand, ReturnValue, UpdateItemCommandInput, PutItemCommandInput, DeleteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb"
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
-import Model from './types'
 import { DYNAMODB_READ_LIMIT, toFriend, toUpdateExpression, toUser } from "./utils"
+import { ID, Friend, FriendStatus, User } from "../types"
+import { CursorPaged, DynamoDbGSI, FriendUpdateArgs, UserUpdateArgs } from "./types"
 
-const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: string): Promise<Model.CursorPaged<Pick<User, "id" | "name" | "avatarUrl">>> => {
+const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: string): Promise<CursorPaged<Pick<User, "id" | "name" | "avatarUrl">>> => {
   let lastKey, json
   if (cursor) {
     lastKey = Buffer.from(cursor, 'base64').toString('ascii')
@@ -16,7 +16,7 @@ const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: st
 
   const input: QueryCommandInput = {
     TableName: chatTableName,
-    IndexName: Model.DynamoDbGSI.RERVERSE_INDEX,
+    IndexName: DynamoDbGSI.RERVERSE_INDEX,
     KeyConditionExpression: 'sk = :skval',
     ExpressionAttributeValues: marshall({
       ':skval': "profile"
@@ -34,7 +34,7 @@ const listUsers = ({ dynamodb, chatTableName }: DbContext) => async (cursor?: st
   }
 }
 
-const getUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<Pick<Model.User, "id" | "name" | "avatarUrl"> | undefined> => {
+const getUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID): Promise<Pick<User, "id" | "name" | "avatarUrl"> | undefined> => {
   const input: GetItemCommandInput = {
     TableName: chatTableName,
     Key: marshall({ pk: `u#${id}`, sk: 'profile' })
@@ -109,7 +109,7 @@ const createFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: 
   await dynamodb.send(command)
 }
 
-const updateFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID, args: Model.FriendUpdateArgs): Promise<void> => {
+const updateFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: ID, friendId: ID, args: FriendUpdateArgs): Promise<void> => {
   const updateExpression = toUpdateExpression(args)
 
   const input: UpdateItemCommandInput = {
@@ -138,7 +138,7 @@ const deleteFriend = ({ dynamodb, chatTableName }: DbContext) => async (userId: 
   await dynamodb.send(command)
 }
 
-const updateUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, args: Model.UserUpdateArgs): Promise<void> => {
+const updateUser = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, args: UserUpdateArgs): Promise<void> => {
   // construct attributes names
   const updateExpression = toUpdateExpression(args)
 
