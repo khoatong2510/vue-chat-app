@@ -60,6 +60,9 @@ const suggestFriend = (dbContext: DbContext, userContext: UserContext) => async 
   const userPage = await userModel.listUsers(dbContext)()
   let suggestions = userPage.items.filter(u => !unwantedIds.includes(u.id))
 
+  if (!userPage.cursor)
+    return suggestions
+
   if (suggestions.length > SUGGEST_LIMIT)
     return suggestions.slice(0, SUGGEST_LIMIT)
 

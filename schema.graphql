@@ -53,6 +53,11 @@ type Conversation @aws_cognito_user_pools {
   messages: MessagePage
 }
 
+type ConversationPage @aws_cognito_user_pools {
+  items: [Conversation],
+  cursor: String
+}
+
 type Result @aws_cognito_user_pools {
   success: Boolean
   error: String 
@@ -95,7 +100,7 @@ type FriendEventOutput @aws_cognito_user_pools {
 type Query @aws_cognito_user_pools {
   getUser(id: ID!): User
   suggestFriend(id: ID!): [User]
-  listConversations(userId: ID!): [Conversation]
+  listConversations(userId: ID!, cursor: String): ConversationPage
   getConversationMessages(conversationId: ID!): Conversation
 }
 

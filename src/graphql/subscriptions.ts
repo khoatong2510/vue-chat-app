@@ -8,3 +8,12 @@ export const ON_FRIEND_REQUESTED = gql`
     }
   }
 `
+
+export const ON_FRIEND_ACCEPTED = gql`
+  subscription OnFriendAccepted($to: ID!) {
+    onFriendAccepted(to: $to) {
+      from
+      to
+    }
+  }
+`

@@ -45,7 +45,7 @@ export const SUGGEST_FRIEND = gql`
 
 export const LIST_CONVERSATIONS = gql`
   query ListConversations($userId: ID!) {
-    listConversation(userId: $userId) {
+    listConversations(userId: $userId) {
       id
       lastMessage {
         content

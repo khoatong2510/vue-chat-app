@@ -5,6 +5,7 @@ import InputField from '@/components/InputField.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { ref } from 'vue'
 import authService from '@/services/amplify-auth'
+import avatarService from '@/services/avatar'
 import { useUserProfileStore } from '@/stores/profile'
 import Button from '@/components/Button.vue'
 
@@ -39,15 +40,7 @@ const onCreateUser = async () => {
       return
 
     // upload file to s3
-    const idToken = await authService.currentIdToken()
-    const res = await fetch(`https://2v2dwfsmk4.execute-api.ap-southeast-2.amazonaws.com/dev/avatar/${userId}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-        "Content-Type": `image/${uploadFile.value.name.split('.')[1]}`
-      },
-      body: uploadFile.value
-    })
+    const res = await avatarService.uploadAvatarImage(userId, uploadFile.value)
 
     await userProfileStore.createUserProfile({
       name: userName.value,

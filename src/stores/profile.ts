@@ -1,8 +1,6 @@
 import { defineStore } from "pinia"
 import userService from '@/services/user'
 import { type Store } from './types'
-import authService from '@/services/amplify-auth'
-import { toBase64 } from "@/utils"
 import { Service } from '@/services/types'
 import avatarService from '@/services/avatar'
 import type { FetchResult } from "@apollo/client"
@@ -34,15 +32,12 @@ export const useUserProfileStore = defineStore('userProfile', {
   },
   actions: {
     async getUserProfile(userId: string): Promise<void> {
-      console.log(userId)
       const userProfile = await userService.getUser(userId)
-      console.log(userProfile)
 
       if (!userProfile)
         return
 
-      const idToken = await authService.currentIdToken()
-      const url = await avatarService.fetchAvatarImage(userId, idToken)
+      const url = await avatarService.fetchAvatarImage(userId)
 
       this.userProfile = {
         ...userProfile,
@@ -55,7 +50,7 @@ export const useUserProfileStore = defineStore('userProfile', {
         if (!friendProfile)
           throw Error(`Friend profile not found ${friend.id}`)
 
-        const friendAvatarUrl = await avatarService.fetchAvatarImage(friend.id, idToken)
+        const friendAvatarUrl = await avatarService.fetchAvatarImage(friend.id)
 
         return {
           id: friendProfile.id,
@@ -77,19 +72,15 @@ export const useUserProfileStore = defineStore('userProfile', {
         throw new Error("id not found")
 
       const res = await userService.suggestFriend(this.userProfile.id)
-      const idToken = await authService.currentIdToken()
 
       this.suggestedFriends = await Promise.all(res.suggestFriend.map(async (friend: Store.UserProfile) => {
-        const url = await avatarService.fetchAvatarImage(friend.id, idToken)
+        const url = await avatarService.fetchAvatarImage(friend.id)
 
         return {
           ...friend,
           avatarUrl: url
         }
       }))
-
-      console.log("suggested friends", this.suggestedFriends)
-
     },
     async requestFriend(id: string): Promise<void> {
       await userService.requestFriend(id)
@@ -103,6 +94,14 @@ export const useUserProfileStore = defineStore('userProfile', {
         return
 
       const subscription = await userService.onFriendRequested(this.userProfile.id, this.handleFriendRequestSubscription)
+      this.subscriptions.push(subscription)
+    },
+
+    async listenFriendAccept(): Promise<void> {
+      if (!this.userProfile)
+        return
+
+      const subscription = await userService.onFriendAccepted(this.userProfile.id, this.handleFriendAcceptedSubscription)
       this.subscriptions.push(subscription)
     },
 
@@ -123,12 +122,11 @@ export const useUserProfileStore = defineStore('userProfile', {
 
       const { from } = value.data.onFriendRequested
       const requestedUser = await userService.getUser(from)
-      const idToken = await authService.currentIdToken()
 
       if (!requestedUser)
         throw Error("Requested User not found")
 
-      const url = await avatarService.fetchAvatarImage(requestedUser.id, idToken)
+      const url = await avatarService.fetchAvatarImage(requestedUser.id)
 
       this.friends.push({
         ...requestedUser,
@@ -136,6 +134,40 @@ export const useUserProfileStore = defineStore('userProfile', {
         status: Service.FriendStatus.REQUESTED,
         sentBy: from
       })
+    },
+    async handleFriendAcceptedSubscription(value: FetchResult<{ onFriendAccepted: { from: ID, to: ID } }>): Promise<void> {
+      if (!value.data)
+        return
+
+      const { from } = value.data.onFriendAccepted
+
+      const acceptedFriendIndex = this.friends.findIndex(f => f.id === from)
+
+      if (acceptedFriendIndex >= 0) {
+        // update status
+        const acceptedFriend = this.friends[acceptedFriendIndex]
+        this.friends.splice(acceptedFriendIndex, 1, {
+          ...acceptedFriend,
+          status: Service.FriendStatus.ACCEPTED
+        })
+      } else {
+        const acceptedFriend = await userService.getUser(from)
+
+        if (!acceptedFriend)
+          throw Error("Requested User not found")
+
+        const url = await avatarService.fetchAvatarImage(acceptedFriend.id)
+
+        this.friends.push({
+          ...acceptedFriend,
+          avatarUrl: url,
+          status: Service.FriendStatus.ACCEPTED,
+          sentBy: from
+        })
+
+        const conversationStore = useConversationStore()
+        await conversationStore.listConversations()
+      }
     },
 
     async acceptFriendRequest(id: ID): Promise<void> {

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Store } from './types'
 import { useUserProfileStore } from './profile'
+import conversationService from '@/services/conversation'
 
 export const useConversationStore = defineStore('conversation', {
   state: (): Store.ConversationStoreState => {
@@ -9,7 +10,17 @@ export const useConversationStore = defineStore('conversation', {
     }
   },
   actions: {
-    listConversations: () => {
+    listConversations: async () => {
+      const userProfileeStore = useUserProfileStore()
+      const userProfile = userProfileeStore.userProfile
+      if (!userProfile)
+        throw Error("User profile not found")
+
+      const res = await conversationService.listConversations(userProfile.id)
+
+      console.log("store res listConversations", res)
+    },
+    getConversation: async () => {
 
     }
   },

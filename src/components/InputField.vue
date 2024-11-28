@@ -26,7 +26,7 @@ const model = defineModel({ required: true })
       :placeholder="props.placeholder"
       class="
         w-full p-2 mt-1 rounded-md text-onSecondaryContainer placeholder:text-onSecondaryContainer placeholder:text-opacity-50
-        border border-solid border-outlineVariant bg-secondaryContainer
+        border border-solid border-outlineVariant bg-surfaceContainerHighest
         focus:outline-none focus:border-outline focus:shadow-sm focus:bg-opacity-80
       "
       :class="props.error ? 'border-error' : 'border-outlineVariant'"

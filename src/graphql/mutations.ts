@@ -41,8 +41,8 @@ export const REQUEST_FRIEND = gql`
 export const ACCEPT_FRIEND = gql`
   mutation AcceptFriend($id: ID!) {
     acceptFriend(id: $id) {
-      success
-      error
+      from
+      to
     }
   }
 `
@@ -50,8 +50,8 @@ export const ACCEPT_FRIEND = gql`
 export const REJECT_FRIEND = gql`
   mutation RejectFriend($id: ID!) {
     rejectFriend(id: $id) {
-      success
-      error
+      from
+      to
     }
   }
 `

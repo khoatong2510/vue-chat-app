@@ -54,7 +54,7 @@ export class GraphqlApiStack extends cdk.Stack {
       sortKey: {
         name: 'createdAt',
         type: dynamodb.AttributeType.STRING
-      }
+      },
     })
 
     chatTable.addGlobalSecondaryIndex({
@@ -102,7 +102,8 @@ export class GraphqlApiStack extends cdk.Stack {
         "dynamodb:Scan"
       ],
       resources: [
-        chatTable.tableArn
+        chatTable.tableArn,
+        `${chatTable.tableArn}/index/*`
       ]
     }))
 
