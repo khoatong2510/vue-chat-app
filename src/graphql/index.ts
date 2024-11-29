@@ -6,7 +6,6 @@ import { setContext } from '@apollo/client/link/context'
 import AuthService from '@/services/amplify-auth'
 import { v4 as uuidv4 } from 'uuid'
 
-
 const authLink = setContext(async (_, { headers }) => {
   const token = await AuthService.currentIdToken()
   return {
@@ -23,8 +22,6 @@ const httpLink = new HttpLink({
     "Content-Type": "application/json"
   }
 })
-
-
 
 const getWsLink = async () => {
   const token = await AuthService.currentIdToken()
@@ -74,8 +71,6 @@ const getWsLink = async () => {
 
       if (key === 'type' && value === 'data')
         return 'next'
-
-      console.log(value)
 
       return value
     }

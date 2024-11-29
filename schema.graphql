@@ -49,8 +49,10 @@ type MessagePage @aws_cognito_user_pools {
 
 type Conversation @aws_cognito_user_pools {
   id: ID!
+  members: [ID]
   lastMessage: Message
   messages: MessagePage
+  createdAt: AWSDateTime
 }
 
 type ConversationPage @aws_cognito_user_pools {
@@ -101,7 +103,7 @@ type Query @aws_cognito_user_pools {
   getUser(id: ID!): User
   suggestFriend(id: ID!): [User]
   listConversations(userId: ID!, cursor: String): ConversationPage
-  getConversationMessages(conversationId: ID!): Conversation
+  getConversationMessages(conversationId: ID!, cursor: String): Conversation
 }
 
 type Mutation @aws_cognito_user_pools {

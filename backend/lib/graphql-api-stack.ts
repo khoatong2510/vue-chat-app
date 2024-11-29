@@ -73,7 +73,7 @@ export class GraphqlApiStack extends cdk.Stack {
       { typeName: 'Query', fieldName: 'getUser' },
       { typeName: 'Query', fieldName: 'suggestFriend' },
       { typeName: 'Query', fieldName: 'listConversations' },
-      { typeName: 'Query', fieldName: 'getConversation' },
+      { typeName: 'Query', fieldName: 'getConversationMessages' },
 
       { typeName: 'Mutation', fieldName: 'createUser' },
       { typeName: 'Mutation', fieldName: 'deleteUser' },

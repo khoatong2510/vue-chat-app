@@ -184,6 +184,7 @@ export const useUserProfileStore = defineStore('userProfile', {
       }
 
       this.friends.splice(friendIndex, 1, updatedFriend)
+
     },
     async rejectFriendRequest(id: ID): Promise<void> {
       await userService.rejectFriend(id)

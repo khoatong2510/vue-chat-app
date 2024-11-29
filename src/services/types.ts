@@ -1,3 +1,5 @@
+import type { CursorPaged, ID } from "@/types"
+
 export namespace Service {
   export type AuthInput = {
     email: string
@@ -15,6 +17,12 @@ export namespace Service {
     BLOCKED = 'BLOCKED'
   }
 
+  export enum MessageContentType {
+    TEXT = 'TEXT',
+    MEDIA = 'MEDIA',
+    REACTION = 'REACTION'
+  }
+
   export type Friend = {
     id: string,
     sentBy: string,
@@ -30,5 +38,24 @@ export namespace Service {
 
   export type Subscription = {
     unsubscribe: Function
+  }
+
+  export type Message = {
+    id: ID
+    conversationId: ID
+    content: string
+    contentType: MessageContentType
+    sentBy: ID
+    replyTo: ID
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  export type Conversation = {
+    id: ID
+    members: ID[]
+    lastMessage: Message
+    messages: CursorPaged<Message>
+    createdAt: Date
   }
 }

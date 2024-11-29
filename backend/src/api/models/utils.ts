@@ -75,7 +75,8 @@ const toConversation = (item: Record<string, AttributeValue>): Conversation => {
     throw Error(`Invalid friend record ${res.pk}`)
 
   return {
-    id: conversationId
+    id: conversationId,
+    createdAt: res.createdAt
   }
 }
 

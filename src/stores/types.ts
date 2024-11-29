@@ -1,4 +1,4 @@
-import type { ID } from "@/types"
+import type { CursorPaged, ID } from "@/types"
 
 export namespace Store {
   export interface AuthStoreState {
@@ -21,19 +21,19 @@ export namespace Store {
     content: string
     createdAt: Date
     sentBy: ID
-    seen: boolean
   }
 
   export type Conversation = {
     id: ID
+    name: string
     avatarUrl: string
     lastMessage: Message | null
-    messages: Message[] | null
+    messages: CursorPaged<Message>
     createdAt: Date
   }
 
   export interface ConversationStoreState {
-    conversations: Conversation[]
+    conversations: CursorPaged<Conversation>
   }
 }
 

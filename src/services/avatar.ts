@@ -22,7 +22,7 @@ const fetchAvatarImage = async (userId: ID): Promise<string> => {
 const uploadAvatarImage = async (userId: ID, file: File): Promise<{ url: string }> => {
   const token = await authService.currentIdToken()
 
-  const res = await fetch(`https://2v2dwfsmk4.execute-api.ap-southeast-2.amazonaws.com/dev/avatar/${userId}`, {
+  const res = await fetch(`${import.meta.env.VITE_AVATAR_API_ENDPOINT}${userId}`, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,

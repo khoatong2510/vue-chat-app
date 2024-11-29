@@ -3,7 +3,7 @@ import ProfileImage from '@/components/ProfileImage.vue'
 import Button from '@/components/Button.vue'
 import { PencilSquareIcon } from '@heroicons/vue/24/outline'
 import Contact from './Contact.vue'
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useUserProfileStore } from '@/stores/profile'
 import { storeToRefs } from 'pinia';
 import { CheckIcon, XMarkIcon, EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
@@ -22,8 +22,6 @@ const conversationStore = useConversationStore()
 
 const { friendRequests, userProfile } = storeToRefs(userProfileStore)
 
-
-
 const getCapitalizeName = computed(() => (value: string) => filters.toCapital(value))
 
 const isMessageView = computed(() => {
@@ -33,7 +31,13 @@ const isRequestView = computed(() => {
   return router.currentRoute.value.name === 'friend'
 })
 
-const { emptyConversations } = storeToRefs(conversationStore)
+const { conversations } = storeToRefs(conversationStore)
+
+onMounted(async () => {
+  // fetch conversation data
+  await conversationStore.listConversations()
+})
+
 
 const onAccept = async (id: ID) => {
   await userProfileStore.acceptFriendRequest(id)
@@ -44,14 +48,7 @@ const onReject = async (id: ID) => {
 }
 
 const onConversationClick = async (conversationId: ID) => {
-  const userId = userProfileStore.userProfile?.id
-  
-  if (!userId)
-    throw Error("User Id not found")
-
-  const ids = conversationId.split(":")
-  const fid = ids.filter(id => id !== userId)[0]
-  router.push({ name: "chat", params: { id: fid }})
+  router.push({ name: "chat", params: { id: conversationId }})
 }
 
 const logOut = async () => {
@@ -126,7 +123,7 @@ const logOut = async () => {
         v-if="!isRequestView" 
         class="p-2 w-full h-full flex flex-col gap-y-2"
       >
-        <Contact v-for="conversation in emptyConversations"
+        <Contact v-for="conversation in conversations.items"
           :key="conversation.id" 
           class="bg-indigo-200 bg-opacity-50 shadow-md" 
           v-bind="conversation"

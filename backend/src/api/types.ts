@@ -1,3 +1,5 @@
+import { CursorPaged } from "./models/types"
+
 export enum FriendStatus {
   REQUESTED = 'REQUESTED',
   ACCEPTED = 'ACCEPTED',
@@ -44,8 +46,10 @@ export type Message = {
 
 export type Conversation = {
   id: ID
-  lastMessage?: Message
   members?: ID[]
+  lastMessage?: Message
+  messages: CursorPaged<Message>
+  createdAt: Date
 }
 
 export type ID = string

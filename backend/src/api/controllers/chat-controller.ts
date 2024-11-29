@@ -5,20 +5,23 @@ import { Conversation, ID, Message } from "../types"
 import { CursorPaged } from "../models/types"
 import { v4 as uuid } from 'uuid'
 
-const listConversations = (dbContext: DbContext, userContext: UserContext) => async (userId: ID, cursor?: string): Promise<CursorPaged<Conversation>> => {
+const listConversations = (dbContext: DbContext, userContext: UserContext) => async ({ userId, cursor }: { userId: ID, cursor?: string }): Promise<CursorPaged<Conversation>> => {
   const user = await userModel.getUser(dbContext)(userId)
+
   if (!user)
-    throw Error("User not found")
+    throw Error(`User not found ${userId}`)
 
-  const res = await chatModel.listConversationIdsByUserId(dbContext)(userId)
+  const res = await chatModel.listConversationsByUserId(dbContext)(userId, cursor)
 
-  const promises = res.items.map(async (id) => {
-    const members = await chatModel.listMembersByConversationId(dbContext)(id)
-    const lastMessage = await chatModel.getConversationLastMessage(dbContext)(id)
+  const promises = res.items.map(async (c) => {
+    const members = await chatModel.listMembersByConversationId(dbContext)(c.id)
+    const lastMessage = await chatModel.getConversationLastMessage(dbContext)(c.id)
+    const messages = await chatModel.listMessagesByConversationId(dbContext)(c.id)
 
     return {
-      id,
+      ...c,
       members,
+      messages,
       lastMessage
     }
   })
@@ -31,25 +34,25 @@ const listConversations = (dbContext: DbContext, userContext: UserContext) => as
   }
 }
 
-const getConversationMessages = (dbContext: DbContext, userContext: UserContext) => async (conversationId: ID): Promise<CursorPaged<Message>> => {
+const getConversationMessages = (dbContext: DbContext, userContext: UserContext) => async ({ conversationId, cursor }: { conversationId: ID, cursor: string }): Promise<CursorPaged<Message>> => {
   const userId = userContext.id
   const conversationMember = await chatModel.getConversationMember(dbContext)(conversationId, userId)
 
   if (!conversationMember)
     throw Error(`Cannot find member: ${userId} of conversation: ${conversationId}`)
 
-  const res = await chatModel.listMessagesByConversationId(dbContext)(conversationId)
+  const res = await chatModel.listMessagesByConversationId(dbContext)(conversationId, cursor)
   return res
 }
 
-const createMessage = (dbContext: DbContext, userContext: UserContext) => async (conversationId: ID, value: Pick<Message, "content" | "contentType">) => {
+const createMessage = (dbContext: DbContext, userContext: UserContext) => async ({ conversationId, value }: { conversationId: ID, value: Pick<Message, "content" | "contentType"> }) => {
   const utcNow = new Date()
   // validate user
   const userId = userContext.id
   const user = await userModel.getUser(dbContext)(userId)
 
   if (!user)
-    throw Error("User not found")
+    throw Error(`User not found ${userId}`)
 
   const conversation = await chatModel.getConversationMember(dbContext)(conversationId, userId)
 

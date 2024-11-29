@@ -44,22 +44,50 @@ export const SUGGEST_FRIEND = gql`
 `
 
 export const LIST_CONVERSATIONS = gql`
-  query ListConversations($userId: ID!) {
-    listConversations(userId: $userId) {
-      id
-      lastMessage {
-        content
-        sentBy
+  query ListConversations($userId: ID!, $cursor: String) {
+    listConversations(userId: $userId, cursor: $cursor) {
+      items {
+        id
+        members
+        lastMessage {
+          content
+          sentBy
+          createdAt
+        }
+        messages {
+          items {
+            id
+            conversationId
+            content
+            contentType
+            sentBy
+            replyTo
+            createdAt
+            updatedAt
+          }
+          cursor
+        }
         createdAt
       }
+      cursor
     }
   }
 `
 
-export const GET_CONVERSATION = gql`
-  query GetConversation($id: ID!) {
-    getConversation(id: $id) {
-      id
+export const GET_CONVERSATION_MESSAGES = gql`
+  query GetConversationMessages($id: ID!) {
+    getConversationMessages(id: $id) {
+      items {
+        id
+        conversationId
+        content
+        contentType
+        sentBy
+        replyTo
+        createdAt
+        updatedAt
+      }
+      cursor
     }
   }
 `

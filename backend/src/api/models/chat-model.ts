@@ -3,9 +3,9 @@ import { DbContext } from "../lambda/types"
 import { cursorToKey, DYNAMODB_READ_LIMIT, keyToCursor, toConversation, toMessage } from "./utils"
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
 import { CursorPaged, DynamoDbGSI, DynamoDbLSI } from "./types"
-import { ID, Message } from "../types"
+import { Conversation, ID, Message } from "../types"
 
-const listConversationIdsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, cursor?: string): Promise<CursorPaged<ID>> => {
+const listConversationsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, cursor?: string): Promise<CursorPaged<Conversation>> => {
   const input: QueryCommandInput = {
     TableName: chatTableName,
     IndexName: DynamoDbGSI.RERVERSE_INDEX,
@@ -20,7 +20,7 @@ const listConversationIdsByUserId = ({ dynamodb, chatTableName }: DbContext) => 
   const command = new QueryCommand(input)
   const res = await dynamodb.send(command)
 
-  const items = (res.Items || []).map(item => toConversation(item).id)
+  const items = (res.Items || []).map(item => toConversation(item))
 
   return {
     items,
@@ -43,7 +43,7 @@ const listMembersByConversationId = ({ dynamodb, chatTableName }: DbContext) => 
   return (res.Items || []).map(item => unmarshall(item).sk.split('#')[1])
 }
 
-const listMessagesByConversationId = ({ dynamodb, chatTableName }: DbContext) => async (conversationId: ID, limit: number = DYNAMODB_READ_LIMIT, cursor?: string): Promise<CursorPaged<Message>> => {
+const listMessagesByConversationId = ({ dynamodb, chatTableName }: DbContext) => async (conversationId: ID, cursor?: string, limit: number = DYNAMODB_READ_LIMIT): Promise<CursorPaged<Message>> => {
   const input: QueryCommandInput = {
     TableName: chatTableName,
     IndexName: DynamoDbLSI.MESSAGE_BY_CREATEDAT,
@@ -82,7 +82,7 @@ const getConversationMember = ({ dynamodb, chatTableName }: DbContext) => async 
 }
 
 const getConversationLastMessage = (dbContext: DbContext) => async (conversationId: ID): Promise<Message> => {
-  const res = await listMessagesByConversationId(dbContext)(conversationId, 1)
+  const res = await listMessagesByConversationId(dbContext)(conversationId, undefined, 1)
   return res.items[0]
 }
 
@@ -170,7 +170,7 @@ const deleteMessage = ({ dynamodb, chatTableName }: DbContext) => async (convers
 }
 
 export default {
-  listConversationIdsByUserId,
+  listConversationsByUserId,
   listMembersByConversationId,
   listMessagesByConversationId,
   getConversationLastMessage,
