@@ -32,8 +32,8 @@ describe("chat controller", () => {
     await userController.requestFriend(dbContext, ucA)({ id: idB })
     await userController.acceptFriend(dbContext, ucB)({ id: idA })
 
-    const cA = await chatController.listConversations(dbContext, ucA)(idA)
-    const cB = await chatController.listConversations(dbContext, ucB)(idB)
+    const cA = await chatController.listConversations(dbContext, ucA)({ userId: idA })
+    const cB = await chatController.listConversations(dbContext, ucB)({ userId: idB })
 
     const cIds = cA.items.filter(c => cB.items.map(cb => cb.id).includes(c.id))
     expect(cIds).toHaveLength(1)
@@ -51,11 +51,9 @@ describe("chat controller", () => {
       contentType: MessageContentType.TEXT
     }
 
-    await chatController.createMessage(dbContext, ucA)(cId, message)
-    const res = await chatController.getConversationMessages(dbContext, ucA)(cId)
+    await chatController.createMessage(dbContext, ucA)({ conversationId: cId, value: message })
+    const res = await chatController.getConversationMessages(dbContext, ucA)({ conversationId: cId })
 
     expect(res.items).toHaveLength(1)
-
-
   })
 })

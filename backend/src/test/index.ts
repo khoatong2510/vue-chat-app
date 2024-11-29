@@ -25,12 +25,12 @@ const main = async () => {
   await userModel.updateFriend(dbContext)(idA, idB, { status: FriendStatus.REQUESTED })
   await userModel.updateFriend(dbContext)(idB, idA, { status: FriendStatus.REQUESTED })
 
-  const cs = await chatModel.listConversationIdsByUserId(dbContext)(idA)
+  const cs = await chatModel.listConversationsByUserId(dbContext)(idA)
   if (cs.items.length > 0) {
-    const cId = cs.items[0]
+    const c = cs.items[0]
 
-    await chatModel.deleteConversation(dbContext)(cId, idA)
-    await chatModel.deleteConversation(dbContext)(cId, idB)
+    await chatModel.deleteConversation(dbContext)(c.id, idA)
+    await chatModel.deleteConversation(dbContext)(c.id, idB)
   }
 }
 

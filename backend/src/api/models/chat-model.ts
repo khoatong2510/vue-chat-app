@@ -5,7 +5,7 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
 import { CursorPaged, DynamoDbGSI, DynamoDbLSI } from "./types"
 import { Conversation, ID, Message } from "../types"
 
-const listConversationsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, cursor?: string): Promise<CursorPaged<Conversation>> => {
+const listConversationsByUserId = ({ dynamodb, chatTableName }: DbContext) => async (id: ID, cursor?: string): Promise<CursorPaged<Pick<Conversation, 'id' | 'createdAt'>>> => {
   const input: QueryCommandInput = {
     TableName: chatTableName,
     IndexName: DynamoDbGSI.RERVERSE_INDEX,

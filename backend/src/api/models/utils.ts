@@ -61,7 +61,7 @@ const toFriend = (item: Record<string, AttributeValue>): Friend => {
   }
 }
 
-const toConversation = (item: Record<string, AttributeValue>): Conversation => {
+const toConversation = (item: Record<string, AttributeValue>): Pick<Conversation, 'id' | 'createdAt'> => {
   const res = unmarshall(item)
 
   if (!res.pk)

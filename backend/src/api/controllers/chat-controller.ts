@@ -34,7 +34,7 @@ const listConversations = (dbContext: DbContext, userContext: UserContext) => as
   }
 }
 
-const getConversationMessages = (dbContext: DbContext, userContext: UserContext) => async ({ conversationId, cursor }: { conversationId: ID, cursor: string }): Promise<CursorPaged<Message>> => {
+const getConversationMessages = (dbContext: DbContext, userContext: UserContext) => async ({ conversationId, cursor }: { conversationId: ID, cursor?: string }): Promise<CursorPaged<Message>> => {
   const userId = userContext.id
   const conversationMember = await chatModel.getConversationMember(dbContext)(conversationId, userId)
 
