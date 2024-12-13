@@ -4,7 +4,6 @@ import MessageList from '../fragments/MessagesList.vue'
 import MessageInput from '../fragments/MessageInput.vue'
 import { useConversationStore } from '@/stores/conversation'
 import { computed, onMounted, ref, watch } from 'vue'
-import { useUserProfileStore } from '@/stores/profile'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
@@ -21,12 +20,20 @@ let currentConversation = computed(() => {
   return c
 })
 
+const messages = computed(() => currentConversation.value?.messages.items || [])
+
+const inputText = ref<string>('')
+
+const onSubmit = () => {
+  console.log("onSubmit", inputText)  
+}
+
 </script>
 
 <template>
 <div 
   v-if="currentConversation" 
-  class="h-full flex flex-col"
+  class="h-full flex flex-col shadow-md"
 >
   <ChatHeader 
     :name="currentConversation.name"
@@ -34,9 +41,15 @@ let currentConversation = computed(() => {
     :active-time="new Date()"
   />
 
-  <MessageList />
+  <MessageList 
+    :messages="messages"
+    :friend-name="currentConversation.name"
+  />
 
-  <MessageInput />
+  <MessageInput 
+    v-model="inputText"
+    @submit="onSubmit"
+  />
 </div>
 </template>
 

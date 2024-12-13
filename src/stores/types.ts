@@ -1,3 +1,4 @@
+import type { Service } from "@/services/types"
 import type { CursorPaged, ID } from "@/types"
 
 export namespace Store {
@@ -18,9 +19,14 @@ export namespace Store {
   }
 
   export type Message = {
+    id: ID
     content: string
-    createdAt: Date
+    contentType: Service.MessageContentType
     sentBy: ID
+    sentByAvatarUrl: String
+    replyTo: ID
+    updatedAt: Date
+    createdAt: Date
   }
 
   export type Conversation = {

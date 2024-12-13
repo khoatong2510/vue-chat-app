@@ -3,9 +3,19 @@
 import { useRouter } from 'vue-router'
 import ContactsList from './fragments/ContactsList.vue'
 import FriendPage from './views/FriendPage.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useConversationStore } from '@/stores/conversation';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter()
+const conversationStore = useConversationStore()
+
+onMounted(async () => {
+  await conversationStore.listConversations()
+})
+
+const { conversations } = storeToRefs(conversationStore)
+
 const onMessage = () => {
   router.push({ name: "chat" })
 }
@@ -19,6 +29,7 @@ const onFriend = () => {
 <template>
   <div class="w-full h-full flex items-center justify-center gap-4 p-4 bg-surfaceBright">
     <ContactsList 
+      :conversations="conversations.items"
       class="w-1/4 h-full" 
       @message="onMessage"
       @friend="onFriend"

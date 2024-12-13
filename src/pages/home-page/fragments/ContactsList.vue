@@ -9,16 +9,21 @@ import { storeToRefs } from 'pinia';
 import { CheckIcon, XMarkIcon, EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 import type { ID } from '@/types'
 import filters from '@/filters'
-import { useConversationStore } from '@/stores/conversation';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import type { Store } from '@/stores/types'
+
+interface ContactListProps {
+  conversations: Store.Conversation[]
+}
+
+const props = defineProps<ContactListProps>()
 
 const router = useRouter()
 const emit = defineEmits(['friend', 'message'])
 
 const authStore = useAuthStore()
 const userProfileStore = useUserProfileStore()
-const conversationStore = useConversationStore()
 
 const { friendRequests, userProfile } = storeToRefs(userProfileStore)
 
@@ -31,13 +36,9 @@ const isRequestView = computed(() => {
   return router.currentRoute.value.name === 'friend'
 })
 
-const { conversations } = storeToRefs(conversationStore)
-
-onMounted(async () => {
-  // fetch conversation data
-  await conversationStore.listConversations()
+const isActiveConversation = computed(() => (conversation: Store.Conversation) => {
+  return conversation.id === router.currentRoute.value.params.id
 })
-
 
 const onAccept = async (id: ID) => {
   await userProfileStore.acceptFriendRequest(id)
@@ -94,11 +95,11 @@ const logOut = async () => {
         class="
           flex-1 text-center font-semibold text-lg py-1 
           rounded-lg
-          hover:bg-secondaryContainer hover:shadow
-          active:bg-primaryFixed active:bg-opacity-80 active:shadow-none
+          hover:bg-primaryFixedDim hover:shadow-md hover:text-onPrimary
+          active:bg-primaryFixed active:shadow-none
           duration-100
           "
-          :class="isMessageView ? 'bg-primaryFixedDim' : 'bg-surfaceContainerHigh'"
+          :class="isMessageView ? 'bg-primary text-onPrimary' : 'bg-surfaceContainerHigh'"
           @click="emit('message')"
         >
         Messages
@@ -108,10 +109,10 @@ const logOut = async () => {
           flex-1 text-center font-semibold text-lg py-1 
           bg-transparent
           rounded-lg
-          hover:bg-primaryFixed hover:shadow
-          active:bg-primaryFixed active:bg-opacity-80 active:shadow-none
+          hover:bg-primaryFixedDim hover:shadow-md hover:text-onPrimary
+          active:bg-primaryFixed active:shadow-none
           duration-100"
-          :class="isRequestView ? 'bg-primaryFixed' : 'bg-surfaceContainerHigh'"
+          :class="isRequestView ? 'bg-primary text-onPrimary' : 'bg-surfaceContainerHigh'"
           @click="emit('friend')"
         >
         Requests
@@ -121,15 +122,15 @@ const logOut = async () => {
     <div>
       <div 
         v-if="!isRequestView" 
-        class="p-2 w-full h-full flex flex-col gap-y-2"
+        class="w-full h-full flex flex-col gap-y-2"
       >
-        <Contact v-for="conversation in conversations.items"
+        <Contact 
+          v-for="conversation in props.conversations"
           :key="conversation.id" 
-          class="bg-indigo-200 bg-opacity-50 shadow-md" 
           v-bind="conversation"
+          :is-active="isActiveConversation(conversation)"
           @click="onConversationClick(conversation.id)"
         />
-
       </div>
 
       <div v-else>

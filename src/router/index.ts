@@ -3,10 +3,10 @@ import AppLayout from '@/pages/AppLayout.vue'
 import LoginPage from '@/pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import HomePage from '@/pages/home-page/HomePage.vue'
-import FriendPage from '@/pages/home-page/views/FriendPage.vue'
-import ChatPage from '@/pages/home-page/views/ChatPage.vue'
+import FriendView from '@/pages/home-page/views/FriendView.vue'
+import ChatView from '@/pages/home-page/views/ChatView.vue'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
-import ColorPalette from '@/pages/ColorPalette.vue'
+import Test from '@/pages/Test.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
 
@@ -67,15 +67,15 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/test',
+      name: 'test',
+      component: Test
+    },
+    {
       path: '/',
       name: 'layout',
       component: AppLayout,
       children: [
-        {
-          path: '/color-palette',
-          name: 'color-palette',
-          component: ColorPalette
-        },
         {
           path: '/login',
           name: 'login',
@@ -107,12 +107,12 @@ const router = createRouter({
                 {
                   path: '/friends',
                   name: 'friend',
-                  component: FriendPage
+                  component: FriendView
                 },
                 {
                   path: '/chat/:id?',
                   name: 'chat',
-                  component: ChatPage
+                  component: ChatView
                 }
               ]
             }

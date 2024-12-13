@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import EmojiPicker from '@/components/EmojiPicker.vue'
 </script>
 
 <template>
@@ -56,6 +56,8 @@
     <div class="bg-outlineVariant w-20 h-20" />
     <div class="bg-shadow w-20 h-20" />
     <div class="bg-scrim w-20 h-20" />
+
+    <EmojiPicker />
   </div>
 </template>
 

@@ -1,38 +1,39 @@
 <script setup lang="ts">
 import Message from './Message.vue'
+import type { Store } from '@/stores/types'
+
+type MessagesListProps = {
+  messages: Store.Message[],
+  friendName: string
+}
+
+const props = defineProps<MessagesListProps>()
+
+// some aggregation here
 
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col p-4 gap-4 bg-surfaceContainer">
-    <div class="flex gap-2 items-end"> 
-      <img 
-        src="@/assets/images/785-200x200.jpg"
-        class="w-9 h-9 rounded-full"
-      />
+  <div 
+    class="
+      flex-1 flex flex-col p-4 gap-4 
+      border-x border-x-solid border-x-outlineVariant
+      bg-surfaceContainer 
+    "
+  >
+    <Message 
+      v-if="props.messages.length > 0"
+      v-for="message in props.messages"
+      :key="message.id"
+      v-bind="message"
+    />
 
-      <div class="flex flex-col items-start gap-1 w-3/4">
-        <Message 
-          content="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        />
-        
-        <Message
-          content="Sed ut perspiciatis" 
-        />
-      </div>
-    </div>
-
-    <div class="self-end flex flex-col items-end gap-1 w-3/4">
-      <Message 
-        content="Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet"
-        bg-color="bg-tertiaryContainer"
-      />
-
-      <Message 
-        content="Neque porro quisquam est"
-        bg-color="bg-tertiaryContainer"
-      />
-    </div>
+    <p 
+      v-else
+      class="text-sm self-center italic text-outline"
+    >
+      You can start chat now, say "Hi" to {{ props.friendName }}
+    </p>
   </div>
 </template>
 

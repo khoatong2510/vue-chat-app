@@ -17,7 +17,7 @@ const activeTimeString = computed(() => moment(props.activeTime).fromNow())
   <div class="
     flex p-4 justify-start items-start gap-2 
     cursor-pointer 
-    border-b border-solid border-outlineVariant bg-primaryContainer drop-shadow-sm rounded-t-lg
+    border-b border-solid border-outlineVariant bg-primaryContainer drop-shadow-sm rounded-t-xl
     hover:bg-opacity-80 hover:drop-shadow duration-100"
   >
     <img 

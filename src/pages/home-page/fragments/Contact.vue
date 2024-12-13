@@ -10,6 +10,7 @@ interface ContactProps {
     content: string
     createdAt: Date
   } | null
+  isActive: boolean
 }
 const emits = defineEmits(['click'])
 const props = defineProps<ContactProps>()
@@ -36,13 +37,14 @@ const timeFromNow = computed(() => {
     v-bind="$attrs" 
     class="
       flex gap-2 items-start justify-start cursor-pointer
-      hover:bg-primaryContainer hover:bg-opacity-50 hover:shadow-md duration-100
-      active:bg-secondaryContainer-200 active:bg-opacity-70 active:shadow-none
-      rounded-lg p-2
+      hover:bg-primaryContainer duration-100
+      active:bg-primaryFixedDim active:bg-opacity-70
+      p-2 border-y border-y-solid border-y-outlineVariant
     "
+    :class="isActive ? 'bg-primaryContainer' : ''"
     @click="emits('click')"
     >
-    <ProfileImage :src="props.avatarUrl" :size="9" />
+    <ProfileImage :src="props.avatarUrl" :size="10" />
 
     <div class="flex flex-col w-full">
       <div class="font-semibold leading-tight">
