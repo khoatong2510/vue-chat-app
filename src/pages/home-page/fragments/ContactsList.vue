@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import ProfileImage from '@/components/ProfileImage.vue'
-import Button from '@/components/Button.vue'
-import { PencilSquareIcon } from '@heroicons/vue/24/outline'
-import Contact from './Contact.vue'
-import { ref, computed, onMounted } from 'vue';
+import CustomButton from '@/components/CustomButton.vue'
+import ContactListItem from './ContactListItem.vue'
+import { computed } from 'vue';
 import { useUserProfileStore } from '@/stores/profile'
 import { storeToRefs } from 'pinia';
 import { CheckIcon, XMarkIcon, EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
@@ -124,7 +123,7 @@ const logOut = async () => {
         v-if="!isRequestView" 
         class="w-full h-full flex flex-col gap-y-2"
       >
-        <Contact 
+        <ContactListItem 
           v-for="conversation in props.conversations"
           :key="conversation.id" 
           v-bind="conversation"
@@ -148,21 +147,21 @@ const logOut = async () => {
           </div>
 
           <div class="flex items-center gap-2">
-            <Button 
+            <CustomButton 
               type="primary"
               class="w-8 h-8 p-0"
               @click="onAccept(friend.id)"
             >
               <CheckIcon class="w-5 h-5 text-onPrimaryContainer" />
-            </Button>
+            </CustomButton>
 
-            <Button 
+            <CustomButton 
               type="tertiary"
               class="w-8 h-8 p-0"
               @click="onReject(friend.id)"
             >
               <XMarkIcon class="w-5 h-5 text-onTertiaryContainer" />
-            </Button>
+            </CustomButton>
           </div>
         </div>
       </div>

@@ -84,7 +84,7 @@ input CreateMessageInput {
   conversationId: ID!
   sentBy: ID
   content: String
-  meta: String
+  contentType: MessageContentType
 }
 
 input UpdateMessageInput {
@@ -119,7 +119,7 @@ type Mutation @aws_cognito_user_pools {
   blockFriend(id: ID!): FriendEventOutput
   
   # message
-  createMessage(input: CreateMessageInput!): Result 
+  createMessage(input: CreateMessageInput!): Message 
   updateMessage(input: UpdateMessageInput!): Result 
   deleteMessage(conversationId: ID!, sentBy: ID!, createdAt: AWSDateTime!): Result
 }
@@ -129,4 +129,6 @@ type Subscription @aws_cognito_user_pools {
   onFriendAccepted(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["acceptFriend"])
   onFriendRejected(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["rejectFriend"])
   onFriendBlocked(to: ID!): FriendEventOutput @aws_subscribe(mutations: ["blockFriend"])
+
+  onMessageCreated(conversationId: ID!): Message @aws_subscribe(mutations: ["createMessage"])
 }

@@ -17,3 +17,18 @@ export const ON_FRIEND_ACCEPTED = gql`
     }
   }
 `
+
+export const ON_MESSAGE_CREATED = gql`
+  subscription OnMessageCreated($conversationId: ID!) {
+    onMessageCreated(conversationId: $conversationId) {
+      id
+      conversationId
+      content
+      contentType
+      sentBy
+      replyTo
+      updatedAt
+      createdAt
+    }
+  }
+`

@@ -2,8 +2,8 @@
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue'
-import Button from '@/components/Button.vue'
+import { onMounted } from 'vue'
+import CustomButton from '@/components/CustomButton.vue'
 
 const authStore = useAuthStore()
 const userProfileStore = useUserProfileStore()
@@ -32,9 +32,11 @@ const onRemove = () => {
       Add friends to get started
     </div>
 
-    <div class="grid grid-cols-4 gap-4 w-full mt-4">
+    <div 
+      v-if="suggestedFriends.length > 0"
+      class="grid grid-cols-4 gap-4 w-full mt-4"
+    >
       <div 
-        v-if="suggestedFriends.length > 0"
         v-for="friend in suggestedFriends" 
         :key="friend.id"
         class="
@@ -49,29 +51,27 @@ const onRemove = () => {
           </div>
 
           <div class="w-full flex items-center gap-2"> 
-            <Button 
+            <CustomButton 
               type="primary"
               class="flex-1 py-1 text-sm rounded-lg"
               @click="onRequestFriend(friend.id)"
             >
               Add
-            </Button>
+            </CustomButton>
   
-            <Button
+            <CustomButton
               type="tertiary"
               class="flex-1 py-1 text-sm rounded-lg"
               @click="onRemove"
             >
               Remove
-            </Button>
+            </CustomButton>
           </div>
       </div>
+    </div>
 
-      <div
-        v-else
-      >
-        No Friend :(
-      </div>
+    <div v-else>
+      No Friend
     </div>
   </div>
 </template>

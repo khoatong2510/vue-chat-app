@@ -54,7 +54,7 @@ export namespace Service {
   export type Conversation = {
     id: ID
     members: ID[]
-    lastMessage: Message
+    lastMessage: Message | null
     messages: CursorPaged<Message>
     createdAt: Date
   }

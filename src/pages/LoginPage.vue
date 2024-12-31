@@ -4,7 +4,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
 import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
-import Button from '@/components/Button.vue'
+import CustomButton from '@/components/CustomButton.vue'
 import { useAuthStore } from '@/stores/auth';
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider';
 import { useRouter } from 'vue-router'
@@ -129,7 +129,7 @@ const passwordErrorMessage = computed<string | null>(() => {
           Forgot Password?
         </a>
 
-        <Button
+        <CustomButton
           type="primary" 
           class="py-2"
           @click="login"
@@ -140,7 +140,7 @@ const passwordErrorMessage = computed<string | null>(() => {
           />
           
           <span v-else> Login </span>
-        </Button>
+        </CustomButton>
       </div>
     </div>
   </div>

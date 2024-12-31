@@ -14,7 +14,7 @@ const fetchAvatarImage = async (userId: ID): Promise<string> => {
   })
 
   const blob = await res.blob()
-  let url = await toBase64(blob)
+  const url = await toBase64(blob)
 
   return url
 }

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import EmojiPicker from '@/components/EmojiPicker.vue'
+
 </script>
 
 <template>
   <div class="flex flex-col gap-4 p-8 bg-background">
     <div class="text-xl">Primary</div>
-    
     <div class="flex gap-4">
       <div class="bg-primary flex items-end rounded-2xl shadow p-4">
         <span class="text-onPrimary">Primary</span>
@@ -17,7 +16,7 @@ import EmojiPicker from '@/components/EmojiPicker.vue'
     </div>
 
     <div class="text-xl">Secondary</div>
-    
+
     <div class="flex gap-4">
       <div class="bg-secondary flex items-end rounded-2xl shadow p-4">
         <span class="text-onSecondary">Secondary</span>
@@ -29,7 +28,7 @@ import EmojiPicker from '@/components/EmojiPicker.vue'
     </div>
 
     <div class="text-xl">tertiary</div>
-    
+
     <div class="flex gap-4">
       <div class="bg-tertiary flex items-end rounded-2xl shadow p-4">
         <span class="text-onTertiary">Tertiary</span>
@@ -41,7 +40,7 @@ import EmojiPicker from '@/components/EmojiPicker.vue'
     </div>
 
     <div class="text-xl">Error</div>
-    
+
     <div class="flex gap-4">
       <div class="bg-error flex justify-center items-center rounded-2xl shadow p-4 min-w-40">
         <span class="text-onError">Error</span>
@@ -56,11 +55,6 @@ import EmojiPicker from '@/components/EmojiPicker.vue'
     <div class="bg-outlineVariant w-20 h-20" />
     <div class="bg-shadow w-20 h-20" />
     <div class="bg-scrim w-20 h-20" />
-
-    <EmojiPicker />
   </div>
+
 </template>
-
-<style lang="postcss">
-
-</style>

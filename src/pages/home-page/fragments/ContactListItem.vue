@@ -4,8 +4,11 @@ import { computed } from 'vue'
 import moment from 'moment'
 
 interface ContactProps {
-  name: string
-  avatarUrl: string
+  members: {
+    id: string
+    name: string
+    avatarUrl: string
+  }[]
   lastMessage: {
     content: string
     createdAt: Date
@@ -24,11 +27,19 @@ const content = computed(() => {
 })
 
 const timeFromNow = computed(() => {
-  if (isEmpty)
+  if (isEmpty.value)
     return ''
 
   return moment(props.lastMessage?.createdAt).diff(moment.now(), 'minute') < 1  ? 
     'now' : moment(props.lastMessage?.createdAt).fromNow(true)
+})
+
+const avatarUrl = computed(() => {
+  return props.members[0].avatarUrl
+})
+
+const name = computed(() => {
+  return props.members[0].name
 })
 </script>
 
@@ -44,11 +55,11 @@ const timeFromNow = computed(() => {
     :class="isActive ? 'bg-primaryContainer' : ''"
     @click="emits('click')"
     >
-    <ProfileImage :src="props.avatarUrl" :size="10" />
+    <ProfileImage :src="avatarUrl" :size="10" />
 
     <div class="flex flex-col w-full">
       <div class="font-semibold leading-tight">
-        {{ props.name }}
+        {{ name }}
       </div>
 
       <div class="flex gap-2 items-center justify-between w-full">

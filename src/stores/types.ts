@@ -23,16 +23,14 @@ export namespace Store {
     content: string
     contentType: Service.MessageContentType
     sentBy: ID
-    sentByAvatarUrl: String
-    replyTo: ID
-    updatedAt: Date
+    replyTo?: ID
+    updatedAt?: Date
     createdAt: Date
   }
 
   export type Conversation = {
     id: ID
-    name: string
-    avatarUrl: string
+    members: UserProfile[]
     lastMessage: Message | null
     messages: CursorPaged<Message>
     createdAt: Date
@@ -40,6 +38,7 @@ export namespace Store {
 
   export interface ConversationStoreState {
     conversations: CursorPaged<Conversation>
+    subscriptions: Service.Subscription[]
   }
 }
 

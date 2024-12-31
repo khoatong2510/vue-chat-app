@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Message from './Message.vue'
+import MessageCard from './MessageCard.vue'
 import type { Store } from '@/stores/types'
 
 type MessagesListProps = {
@@ -16,17 +16,18 @@ const props = defineProps<MessagesListProps>()
 <template>
   <div 
     class="
-      flex-1 flex flex-col p-4 gap-4 
+      flex-1 flex flex-col p-4 gap-4 h-full overflow-y-auto
       border-x border-x-solid border-x-outlineVariant
       bg-surfaceContainer 
     "
   >
-    <Message 
-      v-if="props.messages.length > 0"
-      v-for="message in props.messages"
-      :key="message.id"
-      v-bind="message"
-    />
+    <template v-if="props.messages.length > 0">
+      <MessageCard 
+        v-for="message in props.messages"
+        :key="message.id"
+        v-bind="message"
+      />
+    </template>
 
     <p 
       v-else

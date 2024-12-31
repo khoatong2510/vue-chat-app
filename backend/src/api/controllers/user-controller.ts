@@ -104,8 +104,10 @@ const requestFriend = (dbContext: DbContext, userContext: UserContext) => async 
     throw Error(`Users are already friends ${userId}, ${friendId}`)
 
   // check if they have 1-1 conversation together
-  const cIdsA = await chatModel.listConversationIdsByUserId(dbContext)(userId)
-
+  const cIdsA = await chatModel.listConversationsByUserId(dbContext)(userId)
+  
+  if (cIdsA.items.length > 0)
+    throw Error(`Conversation already exists between users: ${userId}, ${friendId}`)
 
   await userModel.createFriend(dbContext)(userId, id, FriendStatus.REQUESTED, userId)
   await userModel.createFriend(dbContext)(id, userId, FriendStatus.REQUESTED, userId)

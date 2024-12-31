@@ -3,7 +3,7 @@ import ChatHeader from '../fragments/ChatHeader.vue'
 import MessageList from '../fragments/MessagesList.vue'
 import MessageInput from '../fragments/MessageInput.vue'
 import { useConversationStore } from '@/stores/conversation'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
@@ -21,11 +21,28 @@ let currentConversation = computed(() => {
 })
 
 const messages = computed(() => currentConversation.value?.messages.items || [])
+const chatHeaderName = computed(() => {
+  if (!currentConversation.value || currentConversation.value.members.length === 0)
+    return ''
 
-const inputText = ref<string>('')
+  if (currentConversation.value.members.length === 1)
+    return currentConversation.value.members[0].name
 
-const onSubmit = () => {
-  console.log("onSubmit", inputText)  
+  return currentConversation.value.members.map(m => m.name).join(', ')
+})
+
+const chatHeaderAvatarUrl = computed(() => {
+  if (!currentConversation.value || currentConversation.value.members.length === 0)
+    return ''
+
+  return currentConversation.value.members[0].avatarUrl
+})
+
+const onInput = (input: string) => {
+  if (!currentConversation.value)
+    return
+
+  conversationStore.sendTextMessage(currentConversation.value.id, input)
 }
 
 </script>
@@ -36,19 +53,18 @@ const onSubmit = () => {
   class="h-full flex flex-col shadow-md"
 >
   <ChatHeader 
-    :name="currentConversation.name"
-    :avatar-url="currentConversation.avatarUrl"
+    :name="chatHeaderName"
+    :avatar-url="chatHeaderAvatarUrl"
     :active-time="new Date()"
   />
 
   <MessageList 
     :messages="messages"
-    :friend-name="currentConversation.name"
+    :friend-name="chatHeaderName"
   />
 
   <MessageInput 
-    v-model="inputText"
-    @submit="onSubmit"
+    @input="onInput"
   />
 </div>
 </template>

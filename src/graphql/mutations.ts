@@ -56,3 +56,15 @@ export const REJECT_FRIEND = gql`
   }
 `
 
+export const CREATE_MESSAGE = gql`
+  mutation CreateMessage($input: CreateMessageInput!) {
+    createMessage(input: $input) {
+      id
+      conversationId
+      content
+      contentType
+      sentBy
+      createdAt
+    }
+  }
+`

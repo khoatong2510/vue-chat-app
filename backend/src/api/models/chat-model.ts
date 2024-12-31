@@ -133,7 +133,8 @@ const createMessage = ({ dynamodb, chatTableName }: DbContext) => async (convers
       updatedAt: args.updatedAt,
       sentBy: args.sentBy,
       replyTo: args.replyTo
-    }, { removeUndefinedValues: true })
+    }, 
+    { removeUndefinedValues: true })
   }
 
   const command = new PutItemCommand(input)

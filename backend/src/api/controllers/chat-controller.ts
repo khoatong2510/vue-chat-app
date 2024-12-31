@@ -1,7 +1,7 @@
 import { DbContext, UserContext } from "../lambda/types"
 import userModel from "../models/user-model"
 import chatModel from "../models/chat-model"
-import { Conversation, ID, Message } from "../types"
+import { Conversation, ID, Message, Result } from "../types"
 import { CursorPaged } from "../models/types"
 import { v4 as uuid } from 'uuid'
 
@@ -45,11 +45,12 @@ const getConversationMessages = (dbContext: DbContext, userContext: UserContext)
   return res
 }
 
-const createMessage = (dbContext: DbContext, userContext: UserContext) => async ({ conversationId, value }: { conversationId: ID, value: Pick<Message, "content" | "contentType"> }) => {
+const createMessage = (dbContext: DbContext, userContext: UserContext) => async ({ input } : { input : Pick<Message, "content" | "contentType" | "conversationId"> }): Promise<Message> => {
   const utcNow = new Date()
   // validate user
   const userId = userContext.id
   const user = await userModel.getUser(dbContext)(userId)
+  const { conversationId, content, contentType } = input
 
   if (!user)
     throw Error(`User not found ${userId}`)
@@ -57,19 +58,26 @@ const createMessage = (dbContext: DbContext, userContext: UserContext) => async 
   const conversation = await chatModel.getConversationMember(dbContext)(conversationId, userId)
 
   if (!conversation)
-    throw Error("Conversation not found")
+    throw Error(`Conversation not found ${conversationId}, ${userId}`)
 
   // validate input
-  if (value.content === '')
+  if (content === '')
     throw Error("message content cannot be empty")
 
-  await chatModel.createMessage(dbContext)(conversationId, {
+  const message = {
     id: uuid(),
-    content: value.content,
-    contentType: value.contentType,
+    content: content,
+    contentType: contentType,
     sentBy: userId,
     createdAt: utcNow
-  })
+  }
+
+  await chatModel.createMessage(dbContext)(conversationId, message)
+
+  return {
+    ...message,
+    conversationId
+  }
 }
 
 const updateMessage = (dbContext: DbContext, userContext: UserContext) => async () => {

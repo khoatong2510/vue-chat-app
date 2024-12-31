@@ -6,7 +6,7 @@ import { required, email, helpers, minLength, sameAs } from '@vuelidate/validato
 import { hasUpperCase, hasNumber, hasSpecialCharacter } from '@/custom-validators'
 import InputField from '@/components/InputField.vue'
 import Spinner from '@/components/Spinner.vue'
-import Button from '@/components/Button.vue'
+import CustomButton from '@/components/CustomButton.vue'
 import type { CognitoIdentityProviderServiceException } from '@aws-sdk/client-cognito-identity-provider'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
@@ -159,7 +159,8 @@ const backToLogin = () => {
             :error="confirmPasswordErrorMessage"
           />
 
-          <button
+          <CustomButton
+            type="primary"
             class="
               mt-2 w-full rounded-2xl bg-primary text-onPrimary py-2 hover:bg-opacity-80 active:bg-slate-500 transition-colors duration-75 ease-in flex items-center justify-center"
             @click="register"
@@ -167,7 +168,7 @@ const backToLogin = () => {
             <Spinner v-if="isLoading" class="h-5 w-5" />
 
             <span v-else> Register </span>
-          </button>
+          </CustomButton>
         </div>
       </div>
 
@@ -177,13 +178,13 @@ const backToLogin = () => {
           We just sent you an email to verify account
         </div>
 
-        <Button
+        <CustomButton
           type="primary"
           class="px-4 py-2"
           @click="backToLogin"
         >
           Back to Login
-        </Button>
+        </CustomButton>
       </div>
     </div>
 </template>

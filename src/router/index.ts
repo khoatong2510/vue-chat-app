@@ -6,9 +6,10 @@ import HomePage from '@/pages/home-page/HomePage.vue'
 import FriendView from '@/pages/home-page/views/FriendView.vue'
 import ChatView from '@/pages/home-page/views/ChatView.vue'
 import CreateProfilePage from '@/pages/CreateProfilePage.vue'
-import Test from '@/pages/Test.vue'
+import TestContainer from '@/pages/TestContainer.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
+import TestEmoji from '@/pages/TestEmoji.vue'
 
 const validateUserSession = async (to: RouteLocation, from: RouteLocation, next: Function) => {
   const authStore = useAuthStore()
@@ -69,7 +70,12 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: Test
+      component: TestContainer
+    },
+    {
+      path: '/test-emoji',
+      name: 'test-emoji',
+      component: TestEmoji
     },
     {
       path: '/',
