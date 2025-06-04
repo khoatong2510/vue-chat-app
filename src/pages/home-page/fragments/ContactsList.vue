@@ -55,14 +55,14 @@ const logOut = async () => {
   await authStore.signOut()
   await userProfileStore.reset()
 
-  router.push("/")
+  router.push("/login")
 }
 
 </script>
 
 <template>
   <div v-bind="$attrs"
-    class="rounded-xl border border-solid border-outlineVariant bg-surfaceContainerHighest bg-opacity-50 shadow-lg flex flex-col gap-4">
+    class="rounded-xl bg-surfaceContainerHighest bg-opacity-50 shadow-lg flex flex-col gap-4">
     <div class="px-4 pt-4 flex items-center justify-between">
       <div class="flex items-center justify-start gap-2">
         <ProfileImage 
@@ -105,15 +105,15 @@ const logOut = async () => {
       </div>
 
       <div class="
-          flex-1 text-center font-semibold text-lg py-1 
-          bg-transparent
-          rounded-lg
-          hover:bg-primaryFixedDim hover:shadow-md hover:text-onPrimary
-          active:bg-primaryFixed active:shadow-none
-          duration-100"
-          :class="isRequestView ? 'bg-primary text-onPrimary' : 'bg-surfaceContainerHigh'"
-          @click="emit('friend')"
-        >
+        flex-1 text-center font-semibold text-lg py-1 
+        bg-transparent
+        rounded-lg
+        hover:bg-primaryFixedDim hover:shadow-md hover:text-onPrimary
+        active:bg-primaryFixed active:shadow-none
+        duration-100"
+        :class="isRequestView ? 'bg-primary text-onPrimary' : 'bg-surfaceContainerHigh'"
+        @click="emit('friend')"
+      >
         Requests
       </div>
     </div>
@@ -139,7 +139,7 @@ const logOut = async () => {
           class="flex items-center justify-between gap-2 bg-surfaceContainer mx-2 p-2 rounded-lg"
         >
           <div class="flex items-center gap-2">
-            <ProfileImage :src="friend.avatarUrl" :size="9" />
+            <ProfileImage :src="friend.avatarUrl" :size="10" />
           
             <div class="text-sm">
               <span class="font-semibold">{{ getCapitalizeName(friend.name) }}</span> has sent you a friend request

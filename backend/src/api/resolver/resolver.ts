@@ -15,7 +15,6 @@ const request = (ctx: Context) => {
 
 const response = (ctx: Context) => {
   // handling error here
-  console.log("response ctx", ctx)
   if (ctx.result?.error) {
     const { message, name } = ctx.result.error
     if (message && name)

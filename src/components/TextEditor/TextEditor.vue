@@ -8,10 +8,12 @@ import EmojiAutoComplete from './EmojiAutoComplete.vue'
 import emojiJson from 'emoji-datasource-facebook/emoji.json'
 import transparentImg from '@/assets/images/transparent.png'
 
+type EmojiAutoCompleteRef = InstanceType<typeof EmojiAutoComplete>
+
 const emits = defineEmits(['input'])
 const SHEET_SIZE = 18
 const inputRef = useTemplateRef('inputRef')
-const emojiAutoCompleteRef = useTemplateRef('emojiAutoCompleteRef')
+const emojiAutoCompleteRef = useTemplateRef<EmojiAutoCompleteRef>('emojiAutoCompleteRef')
 
 const showEmojiAutoComplete = ref<boolean>(false)
 const showEmojiPicker = ref<boolean>(false)
@@ -24,13 +26,13 @@ let savedCaretPosition = reactive<Pick<Selection, 'anchorNode'|'anchorOffset'>>(
 })
 
 const onInput = (event: Event) => {
-  if ((event as InputEvent).data === ':') {
-    const selection = window.getSelection()
-    savedCaretPosition = {
-      anchorNode: selection?.anchorNode || null,
-      anchorOffset: selection?.anchorOffset || -1
-    }
+  const selection = window.getSelection()
+  savedCaretPosition = {
+    anchorNode: selection?.anchorNode || null,
+    anchorOffset: selection?.anchorOffset || -1
+  }
 
+  if ((event as InputEvent).data === ':') {
     showEmojiAutoComplete.value = true
   }
   
@@ -47,6 +49,22 @@ const onInput = (event: Event) => {
 
 onMounted(() => {
   inputRef.value?.focus()
+
+  document.addEventListener('selectionchange', () => {
+    const selection = window.getSelection()
+    if (selection) {
+      savedCaretPosition = {
+        anchorNode: selection.anchorNode,
+        anchorOffset: selection.anchorOffset
+      }
+    }
+  })
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && showEmojiPicker.value) {
+      showEmojiPicker.value = false
+    }
+  })
 })
 
 watch(showEmojiAutoComplete, () => {
@@ -82,6 +100,12 @@ const getContentRange = (selection: Selection | null): Range|null => {
   range.setEnd(currentCaretRange.endContainer, currentCaretRange.endOffset)
 
   return range
+}
+
+const autoCompleteFocus = () => {
+  if (showEmojiAutoComplete.value && emojiAutoCompleteRef.value) {
+    (emojiAutoCompleteRef.value.$el.firstChild as HTMLElement).focus()
+  }
 }
 
 const onDelete = () => {
@@ -148,8 +172,13 @@ const onSubmit = () => {
 }
 
 const onSelectEmoji = (emoji: any) => {
+  const selection = window.getSelection()
+
+  if (!selection || !selection.anchorNode) 
+    return
+
   const selectedEmoji = emojiJson.find(e => emoji.n.includes(e.short_name))
-  
+  console.log('Selected Emoji:', selectedEmoji)  
   if (!selectedEmoji)
     return
 
@@ -165,11 +194,6 @@ const resetEmojiAutoComplete = () => {
   }
 
   emojiInput.value = ''
-}
-
-const autoCompleteFocus = () => {
-  if (showEmojiAutoComplete.value)
-    (emojiAutoCompleteRef.value?.$el.firstChild as HTMLElement).focus()
 }
 
 const onShortnameSelected = (shortName: string) => {
@@ -196,6 +220,7 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
     return
 
   let selection = window.getSelection()
+
   if (!selection || !selection.anchorNode)
     return
   
@@ -221,11 +246,39 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
   selection.addRange(newRange)
 }
 
+const toggleEmojiPicker = () => {
+  showEmojiPicker.value = !showEmojiPicker.value
+  inputRef.value?.focus()
+
+  // if (showEmojiPicker.value) {
+  //   showEmojiAutoComplete.value = false
+  //   resetEmojiAutoComplete()
+  // }
+}
+
+const placeCaretAtEnd = () => {
+  const el = inputRef.value
+  if (!el) return
+
+  el.focus()
+  const range = document.createRange()
+  range.selectNodeContents(el)
+  range.collapse(false)
+  const sel = window.getSelection()
+  if (sel) {
+    sel.removeAllRanges()
+    sel.addRange(range)
+  }
+}
+
 </script>
 
 <template>
-  <div class="relative flex items-center gap-2">
+  <div 
+    class="relative flex items-center gap-2" 
+  >
     <div 
+      id="text-editor-input"
       tabindex="0"
       ref="inputRef"
       contenteditable="true"
@@ -241,6 +294,7 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
       " 
       @input="onInput"
       @click="resetEmojiAutoComplete"
+      @focus="placeCaretAtEnd"
       @keydown.up="resetEmojiAutoComplete"
       @keydown.down="autoCompleteFocus"
       @keydown.left="resetEmojiAutoComplete"
@@ -253,8 +307,8 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
 
     <EmojiAutoComplete
       v-if="showEmojiAutoComplete && contentRange"
-      ref="emojiAutoCompleteRef" 
       class="absolute"
+      ref="emojiAutoCompleteRef"
       :input-text="emojiInput"
       :content-range="contentRange"
       @shortname-selected="onShortnameSelected"
@@ -264,6 +318,7 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
     <div>
       <EmojiPicker 
         v-if="showEmojiPicker"
+        id="emoji-picker"
         :hide-group-names="true"
         :hide-group-icons="true"
         :hide-search="true"
@@ -273,8 +328,9 @@ const insertEmojiImageToCarePosition = (emoji?: any) => {
       />
 
       <FaceSmileIcon 
+        id="emoji-toggle-button"
         class="w-7 h-7 text-onPrimaryContainer hover:text-onPrimaryFixed duration-100 cursor-pointer"
-        @click="showEmojiPicker = !showEmojiPicker"
+        @click="toggleEmojiPicker"
       />
     </div>
   </div>

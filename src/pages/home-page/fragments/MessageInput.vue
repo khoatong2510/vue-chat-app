@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import TextEditor from '@/components/TextEditor.vue'
+import TextEditor from '@/components/TextEditor/TextEditor.vue'
 
 const emits = defineEmits<{
   (e: 'input', value: string): void
 }>()
 
 const onInput = (input: string) => {
+  console.log('MessageInput onInput', input)
   emits('input', input)
 }
 
@@ -15,7 +16,6 @@ const onInput = (input: string) => {
   <div 
     class="
       p-3 
-      border border-solid border-outlineVariant 
       rounded-b-xl
       bg-surfaceContainerHigh
     "

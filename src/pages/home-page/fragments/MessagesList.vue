@@ -17,7 +17,6 @@ const props = defineProps<MessagesListProps>()
   <div 
     class="
       flex-1 flex flex-col p-4 gap-4 h-full overflow-y-auto
-      border-x border-x-solid border-x-outlineVariant
       bg-surfaceContainer 
     "
   >

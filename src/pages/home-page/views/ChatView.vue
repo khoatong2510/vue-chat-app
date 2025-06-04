@@ -11,9 +11,11 @@ const router = useRouter()
 const conversationStore = useConversationStore()
 
 const { conversations } = storeToRefs(conversationStore)
-let currentConversation = computed(() => {
-  if (router.currentRoute.value.params.id === '')
-    return null
+
+const currentConversation = computed(() => {
+  if (router.currentRoute.value.params.id === '') {
+    return conversations.value.items[0] || null
+  }
 
   const c = conversations.value.items.find(c => c.id === router.currentRoute.value.params.id)
   
@@ -21,6 +23,7 @@ let currentConversation = computed(() => {
 })
 
 const messages = computed(() => currentConversation.value?.messages.items || [])
+
 const chatHeaderName = computed(() => {
   if (!currentConversation.value || currentConversation.value.members.length === 0)
     return ''

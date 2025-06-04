@@ -10,6 +10,7 @@ import TestContainer from '@/pages/TestContainer.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUserProfileStore } from '@/stores/profile'
 import TestEmoji from '@/pages/TestEmoji.vue'
+import { chatGuard } from './guards'
 
 const validateUserSession = async (to: RouteLocation, from: RouteLocation, next: Function) => {
   const authStore = useAuthStore()
@@ -118,7 +119,8 @@ const router = createRouter({
                 {
                   path: '/chat/:id?',
                   name: 'chat',
-                  component: ChatView
+                  component: ChatView,
+                  beforeEnter: chatGuard
                 }
               ]
             }

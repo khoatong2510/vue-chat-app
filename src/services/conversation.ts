@@ -21,8 +21,6 @@ const listConversations = async (id: ID, cursor?: string | null): Promise<Cursor
   if (res.errors)
     throw res.errors
 
-  console.log("res.data.listConversations", res.data.listConversations)
-
   return res.data.listConversations
 }
 
